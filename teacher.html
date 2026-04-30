@@ -1,0 +1,1273 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>O'qituvchi paneli - E-Portfolio Pro</title>
+ <script>if(localStorage.getItem('ep_dark_mode')==='true')document.documentElement.classList.add('dark')</script>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <script src="shared.js"></script>
+ <style>
+ @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+ .animate-fadeInUp{animation:fadeInUp 0.4s ease both}
+ .animate-delay-1{animation-delay:0.05s}
+ .animate-delay-2{animation-delay:0.10s}
+ .animate-delay-3{animation-delay:0.15s}
+ #sidebar{transition:transform 0.3s ease}
+ </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 flex flex-col -translate-x-full md:translate-x-0">
+ <div class="p-6 border-b border-gray-200">
+ <div class="flex items-center gap-3">
+ <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+ <i class="fas fa-chalkboard-teacher text-white text-lg"></i>
+ </div>
+ <div>
+ <h2 class="font-bold text-gray-800 text-sm">E-Portfolio Pro</h2>
+ <p class="text-xs text-gray-500">O'qituvchi paneli</p>
+ </div>
+ </div>
+ </div>
+    <nav class="flex-1 p-4 space-y-1">
+        <button onclick="showSection('studentsSection')" id="nav-students"
+            class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 bg-indigo-50 text-indigo-700 text-left">
+            <i class="fas fa-users w-5 text-center"></i> O'quvchilar
+        </button>
+        <button onclick="showSection('analyticsSection')" id="nav-analytics"
+            class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 text-gray-600 hover:bg-gray-100 text-left">
+            <i class="fas fa-chart-bar w-5 text-center"></i> Analitika
+        </button>
+        <button onclick="showSection('bulkImportSection')" id="nav-bulk"
+            class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 text-gray-600 hover:bg-gray-100 text-left">
+            <i class="fas fa-file-import w-5 text-center"></i> CSV Import
+        </button>
+        <button onclick="showSection('settingsSection')" id="nav-settings"
+            class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 text-gray-600 hover:bg-gray-100 text-left">
+            <i class="fas fa-user-circle w-5 text-center"></i> Profil
+        </button>
+    </nav>
+ <div class="p-4 border-t border-gray-200">
+ <p class="text-xs text-gray-400 text-center">E-Portfolio Pro v2.0</p>
+ </div>
+</aside>
+
+<!-- Sidebar overlay (mobile) -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-30 hidden" onclick="closeSidebar()"></div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="md:ml-64 min-h-screen flex flex-col">
+
+ <!-- HEADER -->
+ <header class="bg-white shadow-sm sticky top-0 z-20 px-4 py-3 flex items-center gap-4">
+ <button id="hamburgerBtn" onclick="toggleSidebar()"
+ class="md:hidden p-2 rounded-xl hover:bg-gray-100 transition-all duration-150">
+ <i class="fas fa-bars text-gray-600 text-lg"></i>
+ </button>
+ <h1 class="flex-1 text-lg font-bold text-gray-800">O'qituvchi paneli</h1>
+
+ <!-- Notification Bell -->
+ <div class="relative">
+ <button id="notifBtn" onclick="toggleNotifDropdown()"
+ class="relative p-2 rounded-xl hover:bg-gray-100 transition-all duration-150">
+ <i class="fas fa-bell text-gray-600 text-lg"></i>
+ <span id="notifBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+ </button>
+ <div id="notifDropdown" class="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 hidden z-50">
+ <div class="p-4 border-b border-gray-200">
+ <h3 class="font-semibold text-gray-800 text-sm">Bildirishnomalar</h3>
+ </div>
+ <div id="notifList" class="max-h-64 overflow-y-auto p-2"></div>
+ </div>
+ </div>
+
+ 
+
+ <!-- Logout -->
+ <button id="logoutBtn"
+ class="flex items-center gap-2 bg-red-500 hover:bg-red-600 active:scale-95 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150">
+ <i class="fas fa-sign-out-alt"></i>
+ <span class="hidden sm:inline">Chiqish</span>
+ </button>
+ </header>
+
+ <!-- MAIN SECTIONS WRAPPER -->
+ <main class="flex-1 p-4 md:p-6 lg:p-8">
+
+ <!-- ===== STUDENTS SECTION ===== -->
+ <section id="studentsSection">
+
+ <!-- Stats Cards -->
+ <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+ <div class="animate-fadeInUp animate-delay-1 bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4">
+ <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-2xl">👥</div>
+ <div>
+ <p class="text-xs text-gray-500 font-medium">Jami o'quvchilar</p>
+ <p id="statTotal" class="text-2xl font-bold text-gray-800">0</p>
+ </div>
+ </div>
+ <div class="animate-fadeInUp animate-delay-2 bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4">
+ <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl">📊</div>
+ <div>
+ <p class="text-xs text-gray-500 font-medium">O'rtacha GPA</p>
+ <p id="statAvgGPA" class="text-2xl font-bold text-gray-800">—</p>
+ </div>
+ </div>
+ <div class="animate-fadeInUp animate-delay-3 bg-white rounded-2xl shadow-sm p-5 flex items-center gap-4">
+ <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">📈</div>
+ <div>
+ <p class="text-xs text-gray-500 font-medium">O'rtacha to'liqlik</p>
+ <p id="statAvgCompletion" class="text-2xl font-bold text-gray-800">—</p>
+ </div>
+ </div>
+ </div>
+
+ <!-- Search & Filter Bar -->
+ <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+ <div class="flex flex-col sm:flex-row gap-3">
+ <div class="flex-1 relative">
+ <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+ <input id="searchInput" type="text" placeholder="Ism yoki ID bo'yicha qidirish..."
+ class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all duration-150">
+ </div>
+ <select id="gpaFilter"
+ class="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all duration-150">
+ <option value="">GPA: Barchasi</option>
+ <option value="4.5,5.0">4.5 – 5.0</option>
+ <option value="4.0,4.4">4.0 – 4.4</option>
+ <option value="3.0,3.9">3.0 – 3.9</option>
+ <option value="1.0,2.9">1.0 – 2.9</option>
+ </select>
+ <select id="scoreFilter"
+ class="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all duration-150">
+ <option value="">Score: Barchasi</option>
+ <option value="70,100">70% dan yuqori</option>
+ <option value="50,70">50 – 70%</option>
+ <option value="0,50">50% dan past</option>
+ </select>
+ <select id="sortSelect"
+ class="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all duration-150">
+ <option value="">Standart</option>
+ <option value="gpa_asc">GPA (o'sish)</option>
+ <option value="gpa_desc">GPA (kamayish)</option>
+ <option value="name_az">Ism (A–Z)</option>
+ <option value="score_desc">Score (kamayish)</option>
+ </select>
+ <button onclick="createStudent()"
+ class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 whitespace-nowrap">
+ <i class="fas fa-plus"></i> Student qo'shish
+ </button>
+ </div>
+ </div>
+
+ <!-- Students Grid -->
+ <div id="studentsList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+ <div id="noResults" class="hidden text-center py-16 text-gray-400">
+ <i class="fas fa-search text-4xl mb-3 block"></i>
+ <p class="text-lg font-medium">Natija topilmadi</p>
+ <p class="text-sm mt-1">Qidiruv yoki filtr shartlarini o'zgartiring</p>
+ </div>
+ </section>
+
+ <!-- ===== ANALYTICS SECTION ===== -->
+ <section id="analyticsSection" class="hidden">
+ <h2 class="text-xl font-bold mb-6 text-gray-800">Analitika</h2>
+ <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+ <div class="animate-fadeInUp bg-white rounded-2xl shadow-sm p-6">
+ <h3 class="font-semibold text-gray-700 mb-4">GPA taqsimoti</h3>
+ <div id="gpaChart"></div>
+ </div>
+ <div class="animate-fadeInUp animate-delay-1 bg-white rounded-2xl shadow-sm p-6">
+ <h3 class="font-semibold text-gray-700 mb-4">Portfolio to'liqlik</h3>
+ <div id="completionChart"></div>
+ </div>
+ </div>
+ <div class="animate-fadeInUp animate-delay-2 bg-white rounded-2xl shadow-sm p-6">
+ <h3 class="font-semibold text-gray-700 mb-4">Top 5 O'quvchilar</h3>
+ <div id="top5List"></div>
+ </div>
+ </section>
+
+ <!-- ===== BULK IMPORT SECTION ===== -->
+ <section id="bulkImportSection" class="hidden">
+ <h2 class="text-xl font-bold mb-6 text-gray-800">CSV Import</h2>
+ <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+ <p class="text-sm text-gray-500 mb-4">
+ CSV fayl ustunlari: <code class="bg-gray-100 px-2 py-0.5 rounded text-xs">id, fullName, major, school, region</code>. Maksimal 200 qator.
+ </p>
+ <label class="flex items-center gap-3 cursor-pointer">
+ <div class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150">
+ <i class="fas fa-upload"></i> CSV fayl tanlash
+ </div>
+ <input id="csvFileInput" type="file" accept=".csv" class="hidden" onchange="handleCSVFile(event)">
+ <span id="csvFileName" class="text-sm text-gray-500">Fayl tanlanmagan</span>
+ </label>
+ </div>
+ <div id="csvPreviewSection" class="hidden">
+ <div class="bg-white rounded-2xl shadow-sm p-6 mb-4">
+ <h3 class="font-semibold text-gray-700 mb-4">Ko'rib chiqish</h3>
+ <div class="overflow-x-auto">
+ <table id="csvPreviewTable" class="w-full text-sm border-collapse">
+ <thead id="csvPreviewHead" class="bg-gray-50"></thead>
+ <tbody id="csvPreviewBody"></tbody>
+ </table>
+ </div>
+ </div>
+ <div class="flex gap-3">
+ <button onclick="confirmCSVImport()"
+ class="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150">
+ <i class="fas fa-check"></i> Tasdiqlash
+ </button>
+ <button onclick="cancelCSVImport()"
+ class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 active:scale-95 text-gray-700 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150">
+ <i class="fas fa-times"></i> Bekor qilish
+ </button>
+ </div>
+ </div>
+ </section>
+
+ <!-- ===== SETTINGS SECTION ===== -->
+ <section id="settingsSection" class="hidden">
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: Profile Card -->
+        <div class="lg:col-span-1 space-y-4">
+
+            <!-- Profile Card -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <!-- Clean header - no cover, just white with subtle border -->
+                <div class="p-5 border-b border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <div id="teacherAvatar" class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-sm">T</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h2 id="teacherName" class="text-lg font-bold text-gray-800">—</h2>
+                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-chalkboard-teacher text-xs"></i> O'qituvchi
+                                </span>
+                            </div>
+                            <p id="teacherIdDisplay" class="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
+                                <i class="fas fa-id-badge text-indigo-400 text-xs"></i>
+                                <span></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div class="grid grid-cols-3">
+                    <div class="py-4 text-center border-r border-gray-100">
+                        <div id="tStatStudents" class="text-xl font-bold text-indigo-600">0</div>
+                        <div class="text-xs text-gray-500">O'quvchi</div>
+                    </div>
+                    <div class="py-4 text-center border-r border-gray-100">
+                        <div id="tStatGPA" class="text-xl font-bold text-green-600">—</div>
+                        <div class="text-xs text-gray-500">GPA</div>
+                    </div>
+                    <div class="py-4 text-center">
+                        <div id="tStatCompletion" class="text-xl font-bold text-purple-600">—</div>
+                        <div class="text-xs text-gray-500">Portfolio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2 text-sm">
+                    <i class="fas fa-shield-alt text-indigo-500"></i> Xavfsizlik
+                </h3>
+                <!-- Password -->
+                <p class="text-xs text-gray-500 font-medium mb-2 uppercase tracking-wide">Parol</p>
+                <div class="space-y-2 mb-4">
+                    <div class="relative">
+                        <input id="currentPass" type="password" placeholder="Joriy parol"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all">
+                        <button type="button" onclick="togglePass('currentPass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input id="newPass" type="password" placeholder="Yangi parol (kamida 6)"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all">
+                        <button type="button" onclick="togglePass('newPass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input id="confirmPass" type="password" placeholder="Tasdiqlang"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all">
+                        <button type="button" onclick="togglePass('confirmPass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <button onclick="handleChangePassword()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white py-2.5 rounded-xl text-sm font-medium transition-all">
+                        Parolni o'zgartirish
+                    </button>
+                    <p id="passMsg" class="text-xs text-center hidden"></p>
+                </div>
+                <!-- PIN -->
+                <p class="text-xs text-gray-500 font-medium mb-2 uppercase tracking-wide">PIN</p>
+                <div class="space-y-2">
+                    <div class="relative">
+                        <input id="currentPIN" type="password" placeholder="Joriy PIN" maxlength="6"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all">
+                        <button type="button" onclick="togglePass('currentPIN', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input id="newPIN" type="password" placeholder="Yangi PIN (4-6 raqam)" maxlength="6"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-indigo-400 transition-all">
+                        <button type="button" onclick="togglePass('newPIN', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <button onclick="handleChangePIN()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white py-2.5 rounded-xl text-sm font-medium transition-all">
+                        PIN ni o'zgartirish
+                    </button>
+                    <p id="pinMsg" class="text-xs text-center hidden"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Dashboard -->
+        <div class="lg:col-span-2 space-y-4">
+
+            <!-- Top Student -->
+            <div id="topStudentCard" class="bg-white rounded-2xl shadow-sm p-5 hidden">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-crown text-yellow-500"></i> Top O'quvchi
+                </h3>
+                <div id="topStudentContent"></div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
+                    <i class="fas fa-bolt text-indigo-500"></i> Tezkor amallar
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <button onclick="showSection('studentsSection')"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:scale-95 text-indigo-700 transition-all">
+                        <i class="fas fa-users text-xl"></i>
+                        <span class="text-xs font-semibold">O'quvchilar</span>
+                    </button>
+                    <button onclick="createStudent()"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-green-50 hover:bg-green-100 active:scale-95 text-green-700 transition-all">
+                        <i class="fas fa-user-plus text-xl"></i>
+                        <span class="text-xs font-semibold">Qo'shish</span>
+                    </button>
+                    <button onclick="showSection('analyticsSection')"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-purple-50 hover:bg-purple-100 active:scale-95 text-purple-700 transition-all">
+                        <i class="fas fa-chart-bar text-xl"></i>
+                        <span class="text-xs font-semibold">Analitika</span>
+                    </button>
+                    <button onclick="showSection('bulkImportSection')"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 transition-all">
+                        <i class="fas fa-file-import text-xl"></i>
+                        <span class="text-xs font-semibold">CSV Import</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent students preview -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-list text-indigo-500"></i> So'nggi o'quvchilar
+                    </h3>
+                    <button onclick="showSection('studentsSection')" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                        Barchasi <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <div id="recentStudentsList" class="space-y-2">
+                    <p class="text-sm text-gray-400 text-center py-4">O'quvchilar yo'q</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+ </section>
+
+ </main>
+</div>
+
+<script>
+// ============================================================
+// TEACHER PROFILE
+// ============================================================
+function renderTeacherProfile() {
+    var userId = localStorage.getItem('ep_user_id') || '—';
+    var users = safeGetItem('users', {});
+    var portfolios = safeGetItem('portfolios', {});
+    var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
+
+    // Avatar initials
+    var initials = userId.substring(0, 2).toUpperCase();
+    var avatarEl = document.getElementById('teacherAvatar');
+    if (avatarEl) avatarEl.textContent = initials;
+
+    // Name & ID
+    var nameEl = document.getElementById('teacherName');
+    if (nameEl) nameEl.textContent = userId;
+    var idEl = document.getElementById('teacherIdDisplay');
+    if (idEl) idEl.querySelector('span').textContent = userId;
+
+    // Stats
+    var stats = calculateClassStats(studentIds, portfolios);
+    var studentsEl = document.getElementById('tStatStudents');
+    var gpaEl = document.getElementById('tStatGPA');
+    var compEl = document.getElementById('tStatCompletion');
+    if (studentsEl) studentsEl.textContent = stats.totalCount;
+    if (gpaEl) gpaEl.textContent = stats.totalCount > 0 ? stats.avgGPA.toFixed(2) : '—';
+    if (compEl) compEl.textContent = stats.totalCount > 0 ? Math.round(stats.avgCompletion) + '%' : '—';
+
+    // Top student
+    var top5 = getTop5Students(studentIds, portfolios);
+    var topCard = document.getElementById('topStudentCard');
+    var topContent = document.getElementById('topStudentContent');
+    if (top5.length > 0 && topCard && topContent) {
+        var top = top5[0];
+        var barColor = top.score >= 70 ? 'bg-green-500' : top.score >= 50 ? 'bg-yellow-500' : 'bg-red-400';
+        topContent.innerHTML =
+            '<div class="flex items-center gap-3">' +
+            '<div class="w-11 h-11 rounded-xl bg-yellow-100 flex items-center justify-center font-bold text-yellow-600 text-lg flex-shrink-0">' + top.name.substring(0,1).toUpperCase() + '</div>' +
+            '<div class="flex-1 min-w-0">' +
+                '<div class="font-bold text-gray-800 text-sm truncate">' + escHtml(top.name) + '</div>' +
+                '<div class="text-xs text-gray-500">GPA: ' + top.gpa.toFixed(2) + '</div>' +
+                '<div class="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden">' +
+                    '<div class="' + barColor + ' h-1.5 rounded-full" style="width:' + top.score + '%"></div>' +
+                '</div>' +
+            '</div>' +
+            '<span class="font-bold text-indigo-600 text-sm flex-shrink-0">' + top.score + '%</span>' +
+            '</div>';
+        topCard.classList.remove('hidden');
+    }
+
+    // Recent students list
+    var recentEl = document.getElementById('recentStudentsList');
+    if (recentEl) {
+        if (studentIds.length === 0) {
+            recentEl.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">O\'quvchilar yo\'q</p>';
+        } else {
+            var recent = studentIds.slice(-5).reverse();
+            recentEl.innerHTML = recent.map(function(sid) {
+                var p = portfolios[sid] || {};
+                var sc = calculatePortfolioScore(p);
+                var bc = sc >= 70 ? 'bg-green-500' : sc >= 50 ? 'bg-yellow-500' : 'bg-red-400';
+                var gpa = parseFloat(p.gpa) || 0;
+                return '<div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">' +
+                    '<div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">' +
+                        (p.fullName ? p.fullName.substring(0,1).toUpperCase() : sid.substring(0,1).toUpperCase()) +
+                    '</div>' +
+                    '<div class="flex-1 min-w-0">' +
+                        '<div class="font-semibold text-gray-800 text-sm truncate">' + escHtml(p.fullName || sid) + '</div>' +
+                        '<div class="flex items-center gap-2 mt-0.5">' +
+                            '<div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">' +
+                                '<div class="' + bc + ' h-1 rounded-full" style="width:' + sc + '%"></div>' +
+                            '</div>' +
+                            '<span class="text-xs text-gray-500 flex-shrink-0">' + sc + '%</span>' +
+                        '</div>' +
+                    '</div>' +
+                    (gpa > 0 ? '<span class="text-xs font-bold text-green-600 flex-shrink-0">GPA ' + gpa.toFixed(1) + '</span>' : '') +
+                    '</div>';
+            }).join('');
+        }
+    }
+}
+
+// ============================================================
+// TOGGLE PASSWORD VISIBILITY
+// ============================================================
+function togglePass(id, btn) {
+    var input = document.getElementById(id);
+    if (!input) return;
+    var isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    var icon = btn.querySelector('i');
+    if (icon) icon.className = isPass ? 'fas fa-eye-slash text-sm' : 'fas fa-eye text-sm';
+}
+
+// ============================================================
+// PORTFOLIO SCORE CALCULATION
+// ============================================================
+function calculatePortfolioScore(p) {
+ if (!p) return 0;
+ var score = 0;
+ var gpa = parseFloat(p.gpa) || 0;
+ if (gpa >= 4.5) score += 30;
+ else if (gpa >= 4.0) score += 20;
+ else if (gpa > 0) score += 10;
+
+ var certs = Array.isArray(p.certificates) ? p.certificates.length : 0;
+ if (certs >= 5) score += 20;
+ else if (certs >= 3) score += 15;
+ else if (certs > 0) score += 8;
+
+ var ach = Array.isArray(p.achievements) ? p.achievements.length : 0;
+ if (ach >= 3) score += 20;
+ else if (ach > 0) score += 10;
+
+ var act = Array.isArray(p.activities) ? p.activities.length : 0;
+ if (act >= 3) score += 15;
+ else if (act > 0) score += 8;
+
+ var ps = p.personalStatement || '';
+ var words = ps.trim() ? ps.trim().split(/\s+/).length : 0;
+ if (words >= 500) score += 15;
+ else if (words >= 300) score += 10;
+ else if (words > 0) score += 5;
+
+ return score;
+}
+
+// ============================================================
+// TASK 5.1 — calculateClassStats(studentIds, portfolios)
+// ============================================================
+function calculateClassStats(studentIds, portfolios) {
+ var total = studentIds.length;
+ if (total === 0) return { totalCount: 0, avgGPA: 0, avgCompletion: 0 };
+
+ var sumGPA = 0, sumScore = 0;
+ studentIds.forEach(function(id) {
+ var p = portfolios[id] || {};
+ sumGPA += parseFloat(p.gpa) || 0;
+ sumScore += calculatePortfolioScore(p);
+ });
+ return {
+ totalCount: total,
+ avgGPA: sumGPA / total,
+ avgCompletion: sumScore / total
+ };
+}
+
+// ============================================================
+// TASK 5.3 — bucketGPAs(studentIds, portfolios)
+// ============================================================
+function bucketGPAs(studentIds, portfolios) {
+ var result = { low: 0, mid: 0, good: 0, excellent: 0 };
+ studentIds.forEach(function(id) {
+ var gpa = parseFloat((portfolios[id] || {}).gpa) || 0;
+ if (gpa >= 4.5) result.excellent++;
+ else if (gpa >= 4.0) result.good++;
+ else if (gpa >= 3.0) result.mid++;
+ else result.low++;
+ });
+ return result;
+}
+
+// ============================================================
+// TASK 5.5 — classifyCompletion(studentIds, portfolios)
+// ============================================================
+function classifyCompletion(studentIds, portfolios) {
+ var above70 = 0, below70 = 0;
+ studentIds.forEach(function(id) {
+ var score = calculatePortfolioScore(portfolios[id] || {});
+ if (score >= 70) above70++;
+ else below70++;
+ });
+ return { above70: above70, below70: below70 };
+}
+
+// ============================================================
+// TASK 5.7 — getTop5Students(studentIds, portfolios)
+// ============================================================
+function getTop5Students(studentIds, portfolios) {
+ var list = studentIds.map(function(id) {
+ var p = portfolios[id] || {};
+ return {
+ id: id,
+ name: p.fullName || id,
+ gpa: parseFloat(p.gpa) || 0,
+ score: calculatePortfolioScore(p)
+ };
+ });
+ list.sort(function(a, b) { return b.score - a.score; });
+ return list.slice(0, 5);
+}
+
+// ============================================================
+// TASK 6.1 — filterStudents(studentIds, portfolios, query, gpaRange, scoreRange, sortBy)
+// ============================================================
+function filterStudents(studentIds, portfolios, query, gpaRange, scoreRange, sortBy) {
+ var q = (query || '').toLowerCase().trim();
+
+ var filtered = studentIds.filter(function(id) {
+ var p = portfolios[id] || {};
+ var name = (p.fullName || '').toLowerCase();
+ var idLower = id.toLowerCase();
+
+ // query filter
+ if (q && !name.includes(q) && !idLower.includes(q)) return false;
+
+ // GPA range filter
+ if (gpaRange) {
+ var gpa = parseFloat(p.gpa) || 0;
+ if (gpa < gpaRange[0] || gpa > gpaRange[1]) return false;
+ }
+
+ // Score range filter
+ if (scoreRange) {
+ var score = calculatePortfolioScore(p);
+ if (score < scoreRange[0] || score > scoreRange[1]) return false;
+ }
+
+ return true;
+ });
+
+ // Sort
+ if (sortBy) {
+ filtered.sort(function(a, b) {
+ var pa = portfolios[a] || {}, pb = portfolios[b] || {};
+ if (sortBy === 'gpa_asc') {
+ return (parseFloat(pa.gpa) || 0) - (parseFloat(pb.gpa) || 0);
+ } else if (sortBy === 'gpa_desc') {
+ return (parseFloat(pb.gpa) || 0) - (parseFloat(pa.gpa) || 0);
+ } else if (sortBy === 'name_az') {
+ var na = (pa.fullName || a).toLowerCase();
+ var nb = (pb.fullName || b).toLowerCase();
+ return na < nb ? -1 : na > nb ? 1 : 0;
+ } else if (sortBy === 'score_desc') {
+ return calculatePortfolioScore(pb) - calculatePortfolioScore(pa);
+ }
+ return 0;
+ });
+ }
+
+ return filtered;
+}
+
+// ============================================================
+// TASK 5.9 — renderGPAChart & renderCompletionChart
+// ============================================================
+var gpaChartInstance = null;
+var completionChartInstance = null;
+
+function renderGPAChart(studentIds, portfolios) {
+ var container = document.getElementById('gpaChart');
+ if (!container) return;
+
+ if (studentIds.length === 0) {
+ container.innerHTML = '<p class="text-center text-gray-400 py-8">Ma\'lumot mavjud emas</p>';
+ return;
+ }
+
+ container.innerHTML = '<canvas id="gpaChartCanvas" height="220"></canvas>';
+ var buckets = bucketGPAs(studentIds, portfolios);
+
+ if (gpaChartInstance) { gpaChartInstance.destroy(); gpaChartInstance = null; }
+
+ var ctx = document.getElementById('gpaChartCanvas').getContext('2d');
+ gpaChartInstance = new Chart(ctx, {
+ type: 'bar',
+ data: {
+ labels: ['1.0–2.9', '3.0–3.9', '4.0–4.4', '4.5–5.0'],
+ datasets: [{
+ label: "O'quvchilar soni",
+ data: [buckets.low, buckets.mid, buckets.good, buckets.excellent],
+ backgroundColor: ['#f87171','#fbbf24','#34d399','#818cf8'],
+ borderRadius: 8,
+ borderSkipped: false
+ }]
+ },
+ options: {
+ responsive: true,
+ plugins: { legend: { display: false } },
+ scales: {
+ y: { beginAtZero: true, ticks: { stepSize: 1 } }
+ }
+ }
+ });
+}
+
+function renderCompletionChart(studentIds, portfolios) {
+ var container = document.getElementById('completionChart');
+ if (!container) return;
+
+ if (studentIds.length === 0) {
+ container.innerHTML = '<p class="text-center text-gray-400 py-8">Ma\'lumot mavjud emas</p>';
+ return;
+ }
+
+ container.innerHTML = '<canvas id="completionChartCanvas" height="220"></canvas>';
+ var cls = classifyCompletion(studentIds, portfolios);
+
+ if (completionChartInstance) { completionChartInstance.destroy(); completionChartInstance = null; }
+
+ var ctx = document.getElementById('completionChartCanvas').getContext('2d');
+ completionChartInstance = new Chart(ctx, {
+ type: 'doughnut',
+ data: {
+ labels: ['70% dan yuqori', '70% dan past'],
+ datasets: [{
+ data: [cls.above70, cls.below70],
+ backgroundColor: ['#34d399','#f87171'],
+ borderWidth: 0,
+ hoverOffset: 8
+ }]
+ },
+ options: {
+ responsive: true,
+ plugins: {
+ legend: { position: 'bottom' }
+ }
+ }
+ });
+}
+
+// ============================================================
+// TASK 5.10 — renderTop5
+// ============================================================
+function renderTop5(studentIds, portfolios) {
+ var container = document.getElementById('top5List');
+ if (!container) return;
+
+ var top5 = getTop5Students(studentIds, portfolios);
+
+ if (top5.length === 0) {
+ container.innerHTML = '<p class="text-center text-gray-400 py-4">Ma\'lumot mavjud emas</p>';
+ return;
+ }
+
+ container.innerHTML = top5.map(function(s, i) {
+ var medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+ var pct = s.score;
+ var barColor = pct >= 70 ? 'bg-green-500' : pct >= 50 ? 'bg-yellow-500' : 'bg-red-400';
+ return '<div class="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0">' +
+ '<span class="text-2xl w-8 text-center">' + medals[i] + '</span>' +
+ '<div class="flex-1 min-w-0">' +
+ '<p class="font-semibold text-gray-800 text-sm truncate">' + escHtml(s.name) + '</p>' +
+ '<p class="text-xs text-gray-500">ID: ' + escHtml(s.id) + ' &bull; GPA: ' + s.gpa.toFixed(2) + '</p>' +
+ '<div class="mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">' +
+ '<div class="h-full ' + barColor + ' rounded-full transition-all duration-500" style="width:' + pct + '%"></div>' +
+ '</div>' +
+ '</div>' +
+ '<span class="text-sm font-bold text-indigo-600 whitespace-nowrap">' + pct + '%</span>' +
+ '</div>';
+ }).join('');
+}
+
+</script>
+<script>
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+function getTeacherNotifications(studentIds, portfolios) {
+ var items = [];
+ studentIds.forEach(function(id) {
+ var p = portfolios[id] || {};
+ var score = calculatePortfolioScore(p);
+ if (score < 50 && !isNotificationDismissed(id)) {
+ items.push({ id: id, name: p.fullName || id, score: score });
+ }
+ });
+ return { count: items.length, items: items };
+}
+
+function renderNotifications(studentIds, portfolios) {
+ var notif = getTeacherNotifications(studentIds, portfolios);
+ var badge = document.getElementById('notifBadge');
+ var list = document.getElementById('notifList');
+
+ if (badge) {
+ if (notif.count > 0) {
+ badge.textContent = notif.count;
+ badge.classList.remove('hidden');
+ } else {
+ badge.classList.add('hidden');
+ }
+ }
+
+ if (list) {
+ if (notif.items.length === 0) {
+ list.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Bildirishnoma yo\'q</p>';
+ } else {
+ list.innerHTML = notif.items.map(function(item) {
+ return '<div class="flex items-center justify-between gap-2 p-2 rounded-xl hover:bg-gray-50 cursor-pointer group" onclick="goToStudent(\'' + escHtml(item.id) + '\')">' +
+ '<div class="flex-1 min-w-0">' +
+ '<p class="text-sm font-medium text-gray-800 truncate">' + escHtml(item.name) + '</p>' +
+ '<p class="text-xs text-red-500">Portfolio: ' + item.score + '%</p>' +
+ '</div>' +
+ '<button onclick="event.stopPropagation();dismissNotif(\'' + escHtml(item.id) + '\')" class="text-gray-300 hover:text-gray-500 text-xs px-1 opacity-0 group-hover:opacity-100 transition-opacity">' +
+ '<i class="fas fa-times"></i>' +
+ '</button>' +
+ '</div>';
+ }).join('');
+ }
+ }
+}
+
+function toggleNotifDropdown() {
+ var dd = document.getElementById('notifDropdown');
+ if (dd) dd.classList.toggle('hidden');
+}
+
+function dismissNotif(id) {
+ dismissNotification(id);
+ var users = safeGetItem('users', {});
+ var portfolios = safeGetItem('portfolios', {});
+ var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
+ renderNotifications(studentIds, portfolios);
+}
+
+function goToStudent(id) {
+ window.location.href = 'portfolio-editor.html?id=' + encodeURIComponent(id);
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function toggleSidebar() {
+ var sidebar = document.getElementById('sidebar');
+ var overlay = document.getElementById('sidebarOverlay');
+ if (!sidebar) return;
+ var isOpen = !sidebar.classList.contains('-translate-x-full');
+ if (isOpen) {
+ sidebar.classList.add('-translate-x-full');
+ if (overlay) overlay.classList.add('hidden');
+ } else {
+ sidebar.classList.remove('-translate-x-full');
+ if (overlay) overlay.classList.remove('hidden');
+ }
+}
+
+function closeSidebar() {
+ var sidebar = document.getElementById('sidebar');
+ var overlay = document.getElementById('sidebarOverlay');
+ if (sidebar) sidebar.classList.add('-translate-x-full');
+ if (overlay) overlay.classList.add('hidden');
+}
+
+// ============================================================
+// SECTION NAVIGATION
+// ============================================================
+var sections = ['studentsSection','analyticsSection','bulkImportSection','settingsSection'];
+var navIds = { studentsSection:'nav-students', analyticsSection:'nav-analytics', bulkImportSection:'nav-bulk', settingsSection:'nav-settings' };
+
+function showSection(id) {
+    sections.forEach(function(s) {
+        var el = document.getElementById(s);
+        if (el) el.classList.toggle('hidden', s !== id);
+    });
+
+    // Update nav active state
+    Object.keys(navIds).forEach(function(s) {
+        var nav = document.getElementById(navIds[s]);
+        if (!nav) return;
+        if (s === id) {
+            nav.classList.add('bg-indigo-50', 'text-indigo-700');
+            nav.classList.remove('text-gray-600', 'hover:bg-gray-100');
+        } else {
+            nav.classList.remove('bg-indigo-50', 'text-indigo-700');
+            nav.classList.add('text-gray-600', 'hover:bg-gray-100');
+        }
+    });
+
+    // If analytics section, render charts
+    if (id === 'analyticsSection') {
+        var users = safeGetItem('users', {});
+        var portfolios = safeGetItem('portfolios', {});
+        var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
+        renderGPAChart(studentIds, portfolios);
+        renderCompletionChart(studentIds, portfolios);
+        renderTop5(studentIds, portfolios);
+    }
+
+    // If settings section, render teacher profile
+    if (id === 'settingsSection') {
+        renderTeacherProfile();
+    }
+
+    // Close sidebar on mobile
+    if (window.innerWidth < 768) closeSidebar();
+}
+
+// ============================================================
+// UTILITY
+// ============================================================
+function escHtml(str) {
+ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function generateShareLink(studentId) {
+ return window.location.origin + '/public.html?id=' + encodeURIComponent(studentId);
+}
+
+function copyShareLink(id) {
+ var link = generateShareLink(id);
+ if (navigator.clipboard && navigator.clipboard.writeText) {
+ navigator.clipboard.writeText(link).then(function() {
+ showAlert('Havola nusxalandi!', 'Muvaffaqiyat');
+ }).catch(function() {
+ showAlert('Nusxalash amalga oshmadi. Havola: ' + link, 'Havola');
+ });
+ } else {
+ showAlert('Havola: ' + link, 'Ulashish havolasi');
+ }
+}
+
+</script>
+<script>
+// ============================================================
+// STUDENT CARDS RENDER
+// ============================================================
+function renderStudentCards(studentIds, portfolios) {
+ var container = document.getElementById('studentsList');
+ var noResults = document.getElementById('noResults');
+ if (!container) return;
+
+ if (studentIds.length === 0) {
+ container.innerHTML = '';
+ if (noResults) noResults.classList.remove('hidden');
+ return;
+ }
+ if (noResults) noResults.classList.add('hidden');
+
+ container.innerHTML = studentIds.map(function(id) {
+ var p = portfolios[id] || {};
+ var name = p.fullName || 'Ism kiritilmagan';
+ var major = p.major || "Ko'rsatilmagan";
+ var gpa = parseFloat(p.gpa) || 0;
+ var score = calculatePortfolioScore(p);
+ var barColor = score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-400';
+ var gpaColor = gpa >= 4.5 ? 'text-green-600' : gpa >= 4.0 ? 'text-blue-600' : gpa >= 3.0 ? 'text-yellow-600' : 'text-red-600';
+
+ return '<div class="animate-fadeInUp bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow duration-150">' +
+ '<div class="flex items-start justify-between gap-2">' +
+ '<div class="flex-1 min-w-0">' +
+ '<h3 class="font-bold text-gray-800 truncate">' + escHtml(name) + '</h3>' +
+ '<p class="text-xs text-gray-500 mt-0.5">ID: ' + escHtml(id) + '</p>' +
+ '<p class="text-xs text-gray-500">Yo\'nalish: ' + escHtml(major) + '</p>' +
+ '</div>' +
+ '<span class="text-lg font-bold ' + gpaColor + ' whitespace-nowrap">' + (gpa > 0 ? gpa.toFixed(2) : '—') + '</span>' +
+ '</div>' +
+ '<div>' +
+ '<div class="flex justify-between text-xs text-gray-500 mb-1">' +
+ '<span>Portfolio</span><span>' + score + '%</span>' +
+ '</div>' +
+ '<div class="h-2 bg-gray-200 rounded-full overflow-hidden">' +
+ '<div class="h-full ' + barColor + ' rounded-full transition-all duration-500" style="width:' + score + '%"></div>' +
+ '</div>' +
+ '</div>' +
+ '<div class="flex gap-2 mt-1">' +
+ '<button onclick="editPortfolio(\'' + escHtml(id) + '\')" class="flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white py-2 rounded-xl text-xs font-medium transition-all duration-150">' +
+ '<i class="fas fa-edit"></i> Tahrirlash' +
+ '</button>' +
+ '<button onclick="copyShareLink(\'' + escHtml(id) + '\')" class="flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-700 py-2 px-3 rounded-xl text-xs font-medium transition-all duration-150">' +
+ '<i class="fas fa-share-alt"></i>' +
+ '</button>' +
+ '<button onclick="deleteStudent(\'' + escHtml(id) + '\')" class="flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 active:scale-95 text-red-600 py-2 px-3 rounded-xl text-xs font-medium transition-all duration-150">' +
+ '<i class="fas fa-trash"></i>' +
+ '</button>' +
+ '</div>' +
+ '</div>';
+ }).join('');
+}
+
+// ============================================================
+// FILTER & SEARCH HANDLER
+// ============================================================
+function applyFilters() {
+ var users = safeGetItem('users', {});
+ var portfolios = safeGetItem('portfolios', {});
+ var allStudentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
+
+ var query = (document.getElementById('searchInput') || {}).value || '';
+ var gpaVal = (document.getElementById('gpaFilter') || {}).value || '';
+ var scoreVal = (document.getElementById('scoreFilter') || {}).value || '';
+ var sortVal = (document.getElementById('sortSelect') || {}).value || '';
+
+ var gpaRange = null;
+ if (gpaVal) {
+ var gp = gpaVal.split(',');
+ gpaRange = [parseFloat(gp[0]), parseFloat(gp[1])];
+ }
+
+ var scoreRange = null;
+ if (scoreVal) {
+ var sp = scoreVal.split(',');
+ scoreRange = [parseFloat(sp[0]), parseFloat(sp[1])];
+ }
+
+ var filtered = filterStudents(allStudentIds, portfolios, query, gpaRange, scoreRange, sortVal || null);
+ renderStudentCards(filtered, portfolios);
+
+ // Update stats with all students (not filtered)
+ updateStats(allStudentIds, portfolios);
+}
+
+// ============================================================
+// STATS UPDATE
+// ============================================================
+function updateStats(studentIds, portfolios) {
+ var stats = calculateClassStats(studentIds, portfolios);
+ var totalEl = document.getElementById('statTotal');
+ var gpaEl = document.getElementById('statAvgGPA');
+ var compEl = document.getElementById('statAvgCompletion');
+ if (totalEl) totalEl.textContent = stats.totalCount;
+ if (gpaEl) gpaEl.textContent = stats.totalCount > 0 ? stats.avgGPA.toFixed(2) : '—';
+ if (compEl) compEl.textContent = stats.totalCount > 0 ? Math.round(stats.avgCompletion) + '%' : '—';
+}
+
+// ============================================================
+// STUDENT CRUD
+// ============================================================
+function editPortfolio(id) {
+ window.location.href = 'portfolio-editor.html?id=' + encodeURIComponent(id);
+}
+
+async function createStudent() {
+ var studentId = await showPrompt("Yangi Student ID kiriting (masalan: S-1001)", "Student qo'shish");
+ if (!studentId) return;
+ studentId = studentId.trim();
+ if (!studentId) return;
+
+ var users = safeGetItem('users', {});
+ if (users[studentId]) {
+ await showAlert("Bu ID allaqachon mavjud!", "Xatolik");
+ return;
+ }
+
+ users[studentId] = { role: 'student', password: null };
+ safeSetItem('users', users);
+ window.location.href = 'portfolio-editor.html?id=' + encodeURIComponent(studentId);
+}
+
+async function deleteStudent(id) {
+ var ok = await showConfirm("\"" + id + "\" studentini o'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo'lmaydi.", "O'chirishni tasdiqlash");
+ if (!ok) return;
+
+ var users = safeGetItem('users', {});
+ var portfolios = safeGetItem('portfolios', {});
+ delete users[id];
+ delete portfolios[id];
+ safeSetItem('users', users);
+ safeSetItem('portfolios', portfolios);
+ applyFilters();
+}
+
+// ============================================================
+// CSV IMPORT
+// ============================================================
+var csvParsedRows = [];
+
+function handleCSVFile(event) {
+ var file = event.target.files[0];
+ if (!file) return;
+
+ var nameEl = document.getElementById('csvFileName');
+ if (nameEl) nameEl.textContent = file.name;
+
+ var reader = new FileReader();
+ reader.onload = function(e) {
+ var text = e.target.result;
+ var result = parseCSV(text);
+
+ if (!validateCSVHeaders(result.headers, ['id','fullName'])) {
+ showAlert("CSV fayl noto'g'ri formatda. Kerakli ustunlar: id, fullName", "Xatolik");
+ cancelCSVImport();
+ return;
+ }
+
+ if (result.rows.length > 200) {
+ showAlert("CSV faylda maksimal 200 qator bo'lishi mumkin. Hozir: " + result.rows.length, "Xatolik");
+ cancelCSVImport();
+ return;
+ }
+
+ csvParsedRows = result.rows;
+ renderCSVPreview(result.headers, result.rows, result.malformedRows);
+ };
+ reader.readAsText(file);
+}
+
+function renderCSVPreview(headers, rows, malformedRows) {
+ var section = document.getElementById('csvPreviewSection');
+ var thead = document.getElementById('csvPreviewHead');
+ var tbody = document.getElementById('csvPreviewBody');
+ if (!section || !thead || !tbody) return;
+
+ thead.innerHTML = '<tr>' + headers.map(function(h) {
+ return '<th class="text-left px-3 py-2 text-xs font-semibold text-gray-600 border-b border-gray-200">' + escHtml(h) + '</th>';
+ }).join('') + '</tr>';
+
+ tbody.innerHTML = rows.slice(0, 20).map(function(row) {
+ return '<tr class="hover:bg-gray-50">' + headers.map(function(h) {
+ return '<td class="px-3 py-2 text-xs text-gray-700 border-b border-gray-100">' + escHtml(row[h] || '') + '</td>';
+ }).join('') + '</tr>';
+ }).join('');
+
+ if (rows.length > 20) {
+ tbody.innerHTML += '<tr><td colspan="' + headers.length + '" class="px-3 py-2 text-xs text-gray-400 text-center">... va yana ' + (rows.length - 20) + ' qator</td></tr>';
+ }
+
+ if (malformedRows.length > 0) {
+ tbody.innerHTML += '<tr><td colspan="' + headers.length + '" class="px-3 py-2 text-xs text-red-500 text-center">' + malformedRows.length + ' ta noto\'g\'ri qator o\'tkazib yuborildi</td></tr>';
+ }
+
+ section.classList.remove('hidden');
+}
+
+function confirmCSVImport() {
+ if (!csvParsedRows.length) return;
+
+ var users = safeGetItem('users', {});
+ var portfolios = safeGetItem('portfolios', {});
+ var added = 0;
+ var skipped = [];
+
+ csvParsedRows.forEach(function(row) {
+ var id = (row.id || '').trim();
+ if (!id) { skipped.push('(bo\'sh ID)'); return; }
+ if (users[id]) { skipped.push(id); return; }
+
+ users[id] = { role: 'student', password: null };
+ portfolios[id] = {
+ fullName: row.fullName || '',
+ major: row.major || '',
+ school: row.school || '',
+ region: row.region || '',
+ certificates: [], grades: [], achievements: [], activities: [],
+ personalStatement: '', gpa: '', skills: [], goals: []
+ };
+ added++;
+ });
+
+ safeSetItem('users', users);
+ safeSetItem('portfolios', portfolios);
+
+ var msg = added + " ta student qo'shildi";
+ if (skipped.length > 0) msg += ", " + skipped.length + " ta o'tkazib yuborildi";
+ showAlert(msg, "Import natijasi");
+
+ cancelCSVImport();
+ applyFilters();
+}
+
+function cancelCSVImport() {
+ csvParsedRows = [];
+ var section = document.getElementById('csvPreviewSection');
+ if (section) section.classList.add('hidden');
+ var fileInput = document.getElementById('csvFileInput');
+ if (fileInput) fileInput.value = '';
+ var nameEl = document.getElementById('csvFileName');
+ if (nameEl) nameEl.textContent = 'Fayl tanlanmagan';
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+function togglePass(id, btn) {
+  var input = document.getElementById(id);
+  if (!input) return;
+  var isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  var icon = btn.querySelector('i');
+  if (icon) icon.className = isPass ? 'fas fa-eye-slash text-sm' : 'fas fa-eye text-sm';
+}
+function handleChangePassword() {
+ var userId = localStorage.getItem('ep_user_id');
+ var cur = (document.getElementById('currentPass') || {}).value || '';
+ var nw = (document.getElementById('newPass') || {}).value || '';
+ var conf = (document.getElementById('confirmPass') || {}).value || '';
+ var msg = document.getElementById('passMsg');
+
+ if (nw !== conf) {
+ if (msg) { msg.textContent = "Yangi parollar mos kelmadi"; msg.className = 'text-xs text-center text-red-500'; msg.classList.remove('hidden'); }
+ return;
+ }
+
+ var result = changePassword(userId, cur, nw);
+ if (msg) {
+ msg.textContent = result.success ? "Parol muvaffaqiyatli o'zgartirildi" : (result.error || "Xatolik");
+ msg.className = 'text-xs text-center ' + (result.success ? 'text-green-600' : 'text-red-500');
+ msg.classList.remove('hidden');
+ }
+ if (result.success) {
+ document.getElementById('currentPass').value = '';
+ document.getElementById('newPass').value = '';
+ document.getElementById('confirmPass').value = '';
+ }
+}
+
+function handleChangePIN() {
+ var userId = localStorage.getItem('ep_user_id');
+ var cur = (document.getElementById('currentPIN') || {}).value || '';
+ var nw = (document.getElementById('newPIN') || {}).value || '';
+ var msg = document.getElementById('pinMsg');
+
+ var result = changePIN(userId, cur, nw);
+ if (msg) {
+ msg.textContent = result.success ? "PIN muvaffaqiyatli o'zgartirildi" : (result.error || "Xatolik");
+ msg.className = 'text-xs text-center ' + (result.success ? 'text-green-600' : 'text-red-500');
+ msg.classList.remove('hidden');
+ }
+ if (result.success) {
+ document.getElementById('currentPIN').value = '';
+ document.getElementById('newPIN').value = '';
+ }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+ // Session check
+ checkSession('teacher');
+ startInactivityWatcher();
+
+ // Dark mode icon
+ 
+
+ // Logout
+ var logoutBtn = document.getElementById('logoutBtn');
+ if (logoutBtn) {
+ logoutBtn.addEventListener('click', async function() {
+ var ok = await showConfirm("Haqiqatan ham chiqmoqchimisiz?", "Chiqish");
+ if (ok) logout();
+ });
+ }
+
+ // Search & filter events
+ var searchInput = document.getElementById('searchInput');
+ if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+ var gpaFilter = document.getElementById('gpaFilter');
+ if (gpaFilter) gpaFilter.addEventListener('change', applyFilters);
+
+ var scoreFilter = document.getElementById('scoreFilter');
+ if (scoreFilter) scoreFilter.addEventListener('change', applyFilters);
+
+ var sortSelect = document.getElementById('sortSelect');
+ if (sortSelect) sortSelect.addEventListener('change', applyFilters);
+
+ // Close notification dropdown on outside click
+ document.addEventListener('click', function(e) {
+ var notifBtn = document.getElementById('notifBtn');
+ var notifDropdown = document.getElementById('notifDropdown');
+ if (notifDropdown && notifBtn && !notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+ notifDropdown.classList.add('hidden');
+ }
+ });
+
+ // Initial render
+ applyFilters();
+
+ // Notifications
+ var users = safeGetItem('users', {});
+ var portfolios = safeGetItem('portfolios', {});
+ var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
+ renderNotifications(studentIds, portfolios);
+});
+</script>
+
+</body>
+</html>

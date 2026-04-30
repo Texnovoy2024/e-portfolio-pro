@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ro'yxatdan o'tish — E-Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-sm">
+        <div class="bg-white px-6 py-7 rounded-2xl shadow-xl">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-white shadow-lg">
+                    <i class="fas fa-folder-open text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">E-Portfolio</h1>
+            </div>
+
+            <div id="errorMsg" class="text-red-600 text-center mb-4 hidden font-medium p-3 bg-red-50 rounded-xl text-sm"></div>
+
+            <!-- Step 1: ID + Parol -->
+            <div id="stepLogin" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-1.5 font-semibold text-sm">Ism</label>
+                    <input id="userId" type="text" required placeholder="ismingizni kiriting"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 mb-1.5 font-semibold text-sm">Parol</label>
+                    <div class="relative">
+                        <input id="password" type="password" required placeholder="kamida 6 ta belgi"
+                            class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-sm" />
+                        <button type="button" onclick="togglePass('password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-gray-700 font-semibold text-sm">Siz kim bo'lasiz?</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer bg-gray-50 px-4 py-3 rounded-xl hover:bg-blue-50 transition border border-gray-200">
+                            <input type="radio" name="role" value="student" class="w-4 h-4 text-blue-600" checked />
+                            <span class="text-sm font-medium">O'quvchi</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-gray-50 px-4 py-3 rounded-xl hover:bg-blue-50 transition border border-gray-200">
+                            <input type="radio" name="role" value="teacher" class="w-4 h-4 text-blue-600" />
+                            <span class="text-sm font-medium">O'qituvchi</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="loginBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3.5 rounded-xl font-semibold text-base transition">
+                    Tizimga kirish
+                </button>
+
+                <div class="text-center pt-1">
+                    <a href="index.html"
+                        class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <i class="fas fa-arrow-left mr-1.5"></i> Asosiy sahifaga qaytish
+                    </a>
+                </div>
+            </div>
+
+            <!-- Step 2a: Teacher PIN kiritish (mavjud PIN) -->
+            <div id="stepPinVerify" class="space-y-4 hidden">
+                <div class="text-center mb-3">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-lock text-blue-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">PIN kiriting</h2>
+                    <p class="text-gray-500 text-sm mt-0.5">O'qituvchi hisobingizni tasdiqlang</p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 mb-1.5 font-semibold text-sm">PIN (4-6 raqam)</label>
+                    <div class="relative">
+                        <input id="pinInput" type="password" inputmode="numeric" maxlength="6"
+                            placeholder="PIN kodingizni kiriting"
+                            class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-sm text-center tracking-widest" />
+                        <button type="button" onclick="togglePass('pinInput', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="pinVerifyBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3.5 rounded-xl font-semibold text-base transition">
+                    Tasdiqlash
+                </button>
+
+                <button id="backFromPinVerify"
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-sm transition">
+                    <i class="fas fa-arrow-left mr-1.5"></i> Orqaga
+                </button>
+            </div>
+
+            <!-- Step 2b: Teacher PIN o'rnatish (yangi teacher) -->
+            <div id="stepPinSetup" class="space-y-4 hidden">
+                <div class="text-center mb-3">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-key text-green-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">PIN o'rnating</h2>
+                    <p class="text-gray-500 text-sm mt-0.5">Hisobingizni himoya qilish uchun PIN o'rnating</p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 mb-1.5 font-semibold text-sm">Yangi PIN (4-6 raqam)</label>
+                    <div class="relative">
+                        <input id="pinSetupInput" type="password" inputmode="numeric" maxlength="6"
+                            placeholder="4-6 ta raqam kiriting"
+                            class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-sm text-center tracking-widest" />
+                        <button type="button" onclick="togglePass('pinSetupInput', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="pinSetupBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3.5 rounded-xl font-semibold text-base transition">
+                    Tasdiqlash
+                </button>
+
+                <button id="backFromPinSetup"
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-sm transition">
+                    <i class="fas fa-arrow-left mr-1.5"></i> Orqaga
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DEFAULT TEACHER YARATISH
+        // ============================================
+        function initializeDefaultTeacher() {
+            var users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            // Agar "umida" ID mavjud bo'lmasa, default teacher yaratamiz
+            if (!users['umida']) {
+                users['umida'] = {
+                    role: 'teacher',
+                    password: 'umida222',
+                    pin: null, // Birinchi login da PIN o'rnatadi
+                    name: 'Umida',
+                    createdAt: new Date().toISOString()
+                };
+                localStorage.setItem('users', JSON.stringify(users));
+                console.log('✅ Default teacher yaratildi: ID=umida, Parol=umida222');
+            }
+        }
+
+        // Sahifa yuklanganda default teacher yaratish
+        initializeDefaultTeacher();
+
+        // ============================================
+        // AUTH LOGIC
+        // ============================================
+        var idInput = document.getElementById('userId');
+        var passwordInput = document.getElementById('password');
+        var errorMsg = document.getElementById('errorMsg');
+        var loginBtn = document.getElementById('loginBtn');
+
+        var stepLogin = document.getElementById('stepLogin');
+        var stepPinVerify = document.getElementById('stepPinVerify');
+        var stepPinSetup = document.getElementById('stepPinSetup');
+
+        var pinInput = document.getElementById('pinInput');
+        var pinVerifyBtn = document.getElementById('pinVerifyBtn');
+        var backFromPinVerify = document.getElementById('backFromPinVerify');
+
+        var pinSetupInput = document.getElementById('pinSetupInput');
+        var pinSetupBtn = document.getElementById('pinSetupBtn');
+        var backFromPinSetup = document.getElementById('backFromPinSetup');
+
+        // Joriy login konteksti
+        var currentUserId = null;
+
+        function showError(text) {
+            errorMsg.textContent = text;
+            errorMsg.classList.remove('hidden');
+            setTimeout(function () { errorMsg.classList.add('hidden'); }, 4000);
+        }
+
+        function hideError() {
+            errorMsg.classList.add('hidden');
+        }
+
+        function showStep(step) {
+            stepLogin.classList.add('hidden');
+            stepPinVerify.classList.add('hidden');
+            stepPinSetup.classList.add('hidden');
+            hideError();
+            step.classList.remove('hidden');
+        }
+
+        function completeLogin(userId, users) {
+            localStorage.setItem('ep_logged_in', 'true');
+            localStorage.setItem('ep_user_id', userId);
+            localStorage.setItem('ep_user_role', users[userId].role);
+            // 4.5: session start saqlash
+            localStorage.setItem('ep_session_start', new Date().toISOString());
+
+            if (users[userId].role === 'teacher') {
+                window.location.href = 'teacher.html';
+            } else {
+                window.location.href = 'student.html';
+            }
+        }
+
+        // Step 1: Login tugmasi
+        loginBtn.addEventListener('click', function () {
+            var id = idInput.value.trim();
+            var pass = passwordInput.value.trim();
+
+            if (!id || !pass) {
+                showError("ID va parolni to'ldiring");
+                return;
+            }
+
+            var users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (!users[id]) {
+                showError("Bunday ID mavjud emas!");
+                return;
+            }
+
+            // Parol tekshiruvi
+            if (users[id].password === null) {
+                // Birinchi login — parol o'rnatish
+                users[id].password = pass;
+                localStorage.setItem('users', JSON.stringify(users));
+            } else if (users[id].password !== pass) {
+                showError("Parol noto'g'ri!");
+                return;
+            }
+
+            currentUserId = id;
+
+            // Student: to'g'ridan-to'g'ri kirish
+            if (users[id].role === 'student') {
+                completeLogin(id, users);
+                return;
+            }
+
+            // Teacher: PIN tekshiruvi
+            if (users[id].role === 'teacher') {
+                if (users[id].pin) {
+                    // 4.4: Mavjud PIN — PIN kiritish formasi
+                    showStep(stepPinVerify);
+                    pinInput.value = '';
+                    pinInput.focus();
+                } else {
+                    // 4.3: Yangi teacher — PIN o'rnatish formasi
+                    showStep(stepPinSetup);
+                    pinSetupInput.value = '';
+                    pinSetupInput.focus();
+                }
+            }
+        });
+
+        // Step 2a: PIN tekshiruvi
+        pinVerifyBtn.addEventListener('click', function () {
+            var pin = pinInput.value.trim();
+            var users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (!validatePIN(pin)) {
+                showError("PIN 4-6 ta raqamdan iborat bo'lishi kerak");
+                return;
+            }
+
+            if (users[currentUserId].pin !== pin) {
+                showError("PIN noto'g'ri!");
+                pinInput.value = '';
+                pinInput.focus();
+                return;
+            }
+
+            completeLogin(currentUserId, users);
+        });
+
+        // Enter tugmasi bilan PIN tasdiqlash
+        pinInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') pinVerifyBtn.click();
+        });
+
+        // Step 2b: PIN o'rnatish
+        pinSetupBtn.addEventListener('click', function () {
+            var pin = pinSetupInput.value.trim();
+            var users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (!validatePIN(pin)) {
+                showError("PIN faqat 4-6 ta raqamdan iborat bo'lishi kerak");
+                return;
+            }
+
+            users[currentUserId].pin = pin;
+            localStorage.setItem('users', JSON.stringify(users));
+
+            completeLogin(currentUserId, users);
+        });
+
+        // Enter tugmasi bilan PIN setup tasdiqlash
+        pinSetupInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') pinSetupBtn.click();
+        });
+
+        // Orqaga tugmalari
+        backFromPinVerify.addEventListener('click', function () {
+            currentUserId = null;
+            showStep(stepLogin);
+        });
+
+        backFromPinSetup.addEventListener('click', function () {
+            currentUserId = null;
+            showStep(stepLogin);
+        });
+
+        // Enter bilan login
+        passwordInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Tahrirlash — E-Portfolio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="shared.js"></script>
+<style>
+  #sidebar { transition: transform 0.3s ease; }
+</style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 flex flex-col -translate-x-full md:translate-x-0">
+  <div class="p-5 border-b border-gray-200">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+        <i class="fas fa-folder-open text-white"></i>
+      </div>
+      <div>
+        <h2 class="font-bold text-sm text-gray-800">Portfolio Tahrirlash</h2>
+        <p id="sidebarStudentId" class="text-xs text-gray-500"></p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 p-4 space-y-1">
+    <button onclick="scrollToSection('photoSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-image w-5 text-center text-indigo-500"></i> Profil rasmi
+    </button>
+    <button onclick="scrollToSection('infoSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-user w-5 text-center text-indigo-500"></i> Ma'lumotlar
+    </button>
+    <button onclick="scrollToSection('certsSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-certificate w-5 text-center text-green-500"></i> Sertifikatlar
+    </button>
+    <button onclick="scrollToSection('gradesSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-book w-5 text-center text-indigo-500"></i> Akademik
+    </button>
+    <button onclick="scrollToSection('achievementsSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-trophy w-5 text-center text-yellow-500"></i> Yutuqlar
+    </button>
+    <button onclick="scrollToSection('experienceSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-briefcase w-5 text-center text-blue-500"></i> Ish tajribasi
+    </button>
+    <button onclick="scrollToSection('educationSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-graduation-cap w-5 text-center text-teal-500"></i> Ta'lim tarixi
+    </button>
+    <button onclick="scrollToSection('skillsSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-chart-bar w-5 text-center text-purple-500"></i> Ko'nikmalar
+    </button>
+    <button onclick="scrollToSection('languagesSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-language w-5 text-center text-cyan-500"></i> Tillar
+    </button>
+    <button onclick="scrollToSection('goalsSection')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-bullseye w-5 text-center text-orange-500"></i> Maqsadlar
+    </button>
+  </nav>
+  <div class="p-4 border-t border-gray-200">
+    <button onclick="goBack()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-left transition-all">
+      <i class="fas fa-arrow-left w-5 text-center"></i> Orqaga
+    </button>
+  </div>
+</aside>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-30 hidden" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<div class="md:ml-64 min-h-screen flex flex-col">
+<header class="bg-white shadow-sm sticky top-0 z-20">
+  <div class="px-4 py-3 flex items-center gap-3">
+    <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-xl hover:bg-gray-100 transition">
+      <i class="fas fa-bars text-gray-600"></i>
+    </button>
+    <div class="flex-1 text-center">
+      <h1 class="text-lg font-bold text-gray-800">Portfolio Tahrirlash</h1>
+      <p id="headerStudentId" class="text-xs text-gray-500"></p>
+    </div>
+    <button onclick="savePortfolio()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+      <i class="fas fa-floppy-disk"></i><span class="hidden sm:inline">Saqlash</span>
+    </button>
+  </div>
+</header>
+<div class="p-4 md:p-6 space-y-6">
+  <div id="photoSection" class="bg-white rounded-2xl shadow p-6">
+ <div class="flex items-center gap-6">
+ <div id="photoPreview" class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-indigo-200 flex-shrink-0"><i class="fa-solid fa-user text-4xl text-gray-400"></i></div>
+ <div>
+ <button onclick="document.getElementById('photoInput').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-upload"></i> Rasm yuklash</button>
+ <p class="text-xs text-gray-500 mt-2">JPEG, PNG, WebP — maks. 2 MB</p>
+ <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="onPhotoInputChange(this)">
+ </div>
+ </div>
+ </div>
+ <div id="infoSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-user text-indigo-500"></i> Umumiy ma'lumotlar</h2>
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Ism va familiya</label><input id="fullName" type="text" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: Hasanxon Saydullaxonov"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Email</label><input id="email" type="email" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: hasanxon@example.com"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Telefon raqami</label><input id="phoneNumber" type="tel" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: +998 90 123 45 67"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Tug'ilgan sana</label><input id="birthDate" type="date" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition"><div class="mt-1 text-sm text-gray-500">Yoshi: <span id="ageValue" class="font-medium text-gray-700">—</span></div></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Yashash hududi</label><input id="region" type="text" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: Toshkent viloyati"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Ta'lim muassasasi</label><input id="school" type="text" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: 123-maktab"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Tanlagan yo'nalish</label><input id="major" type="text" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: Axborot texnologiyalari"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">LinkedIn profil</label><input id="linkedin" type="url" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: https://linkedin.com/in/hasanxon"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">GitHub profil</label><input id="github" type="url" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: https://github.com/hasanxon"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Portfolio website</label><input id="portfolio" type="url" class="w-full border border-gray-300 bg-white text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 p-3 rounded-xl transition" placeholder="Masalan: https://hasanxon.uz"></div>
+ </div>
+ </div>
+
+ <div id="certsSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-certificate text-green-500"></i> Sertifikatlar</h2>
+ <div id="certList" class="space-y-3 mb-4"></div>
+ <button onclick="toggleCertForm()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Yangi sertifikat qo'shish</button>
+ <div id="certForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <input id="certName" placeholder="Sertifikat nomi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <select id="certType" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"><option value="">Kategoriya tanlang</option><option>Til sertifikati</option><option>IT Sertifikati</option><option>Olimpiada</option><option>Sport</option><option>Kurs / Trening</option><option>Boshqa</option></select>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Olingan sana</label><input id="certDate" type="date" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"></div>
+ <div><label class="block text-sm font-medium text-gray-600 mb-1">Amal qilish muddati</label><input id="certExpiry" type="date" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"></div>
+ <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-600 mb-1">Bergan tashkilot</label><input id="certOrg" placeholder="Masalan: British Council" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"></div>
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveCertificate()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleCertForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ </div>
+ <div id="gradesSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-book text-indigo-500"></i> Akademik natijalar</h2>
+ <div id="gradeList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4"></div>
+ <button onclick="toggleGradeForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Fan qo'shish</button>
+ <div id="gradeForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+ <input id="subjectName" placeholder="Fan nomi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="subjectGrade" type="number" min="1" max="5" step="0.1" placeholder="Baho (1-5)" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="subjectYear" placeholder="Yil (2026)" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveGrade()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleGradeForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ <div class="mt-4 p-3 bg-indigo-50 rounded-xl text-sm text-gray-700">
+ 🎓 Umumiy o'rtacha ball (GPA): <span id="gpaValue" class="font-bold text-lg text-indigo-700">0.00</span>
+ </div>
+ </div>
+ <div id="achievementsSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500"></i> Yutuqlar</h2>
+ <div id="achievementList" class="space-y-3 mb-4"></div>
+ <button onclick="toggleAchievementForm()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Yutuq qo'shish</button>
+ <div id="achievementForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+ <input id="achTitle" placeholder="Musobaqa nomi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <select id="achLevel" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"><option value="">Bosqich</option><option>Maktab</option><option>Viloyat</option><option>Respublika</option><option>Xalqaro</option></select>
+ <select id="achPlace" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"><option value="">Natija</option><option>1-o'rin</option><option>2-o'rin</option><option>3-o'rin</option><option>G'olib</option><option>Ishtirokchi</option></select>
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveAchievement()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleAchievementForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ </div>
+ <div class="bg-white rounded-2xl shadow p-6" id="experienceSection">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase text-blue-500"></i> Ish tajribasi</h2>
+ <div id="experienceList" class="space-y-3 mb-4"></div>
+ <button onclick="toggleExperienceForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Tajriba qo'shish</button>
+ <div id="experienceForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <input id="expCompany" placeholder="Kompaniya/Tashkilot nomi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="expPosition" placeholder="Lavozim/Rol" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="expStartDate" type="month" placeholder="Boshlanish sanasi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="expEndDate" type="month" placeholder="Tugash sanasi (yoki hozir)" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <div class="md:col-span-2"><textarea id="expDescription" rows="3" placeholder="Qisqa tavsif (vazifalar, yutuqlar)" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"></textarea></div>
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveExperience()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleExperienceForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ </div>
+ <div class="bg-white rounded-2xl shadow p-6" id="educationSection">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-teal-500"></i> Ta'lim tarixi</h2>
+ <div id="educationList" class="space-y-3 mb-4"></div>
+ <button onclick="toggleEducationForm()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Ta'lim qo'shish</button>
+ <div id="educationForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <input id="eduInstitution" placeholder="Ta'lim muassasasi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="eduDegree" placeholder="Daraja/Sinf" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="eduStartYear" type="number" min="1990" max="2050" placeholder="Boshlanish yili" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="eduEndYear" type="number" min="1990" max="2050" placeholder="Tugash yili (yoki hozir)" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <div class="md:col-span-2"><input id="eduField" placeholder="Yo'nalish/Mutaxassislik" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl"></div>
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveEducation()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleEducationForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ </div>
+ <div class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-star text-pink-500"></i> Qo'shimcha faoliyatlar</h2>
+ <div id="activityList" class="space-y-3 mb-4"></div>
+ <button onclick="toggleActivityForm()" class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"><i class="fa-solid fa-plus"></i> Faoliyat qo'shish</button>
+ <div id="activityForm" class="bg-gray-50 p-6 rounded-2xl mt-4 border border-gray-200 hidden">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <input id="actTitle" placeholder="Faoliyat nomi" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ <input id="actDesc" placeholder="Qisqa tavsif" class="border border-gray-300 bg-white text-gray-800 p-3 rounded-xl">
+ </div>
+ <div class="flex gap-3 mt-4">
+ <button onclick="saveActivity()" class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Saqlash</button>
+ <button onclick="toggleActivityForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Bekor qilish</button>
+ </div>
+ </div>
+ </div>
+ <div id="skillsSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-bar text-purple-500"></i> Ko'nikmalar</h2>
+ <div id="skillsList" class="space-y-3 mb-4"></div>
+ <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+ <h3 class="text-sm font-semibold text-gray-700 mb-3">Ko'nikma qo'shish</h3>
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+ <div><label class="block text-xs text-gray-600 mb-1">Ko'nikma nomi</label><input id="skillName" type="text" placeholder="Masalan: Python" class="w-full border border-gray-300 bg-white text-gray-800 p-2 rounded-lg text-sm"></div>
+ <div><label class="block text-xs text-gray-600 mb-1">Daraja: <span id="skillLevelDisplay">50</span>%</label><input id="skillLevel" type="range" min="1" max="100" value="50" class="w-full accent-indigo-600" oninput="document.getElementById('skillLevelDisplay').textContent=this.value"></div>
+ <button onclick="addSkillFromForm()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 justify-center"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+ </div>
+ </div>
+ </div>
+ <div id="languagesSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-language text-cyan-500"></i> Tillar</h2>
+ <div id="languagesList" class="space-y-3 mb-4"></div>
+ <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+ <h3 class="text-sm font-semibold text-gray-700 mb-3">Til qo'shish</h3>
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+ <div><label class="block text-xs text-gray-600 mb-1">Til nomi</label><input id="languageName" type="text" placeholder="Masalan: English" class="w-full border border-gray-300 bg-white text-gray-800 p-2 rounded-lg text-sm"></div>
+ <div><label class="block text-xs text-gray-600 mb-1">Daraja</label><select id="languageLevel" class="w-full border border-gray-300 bg-white text-gray-800 p-2 rounded-lg text-sm"><option value="Beginner">Beginner</option><option value="Elementary">Elementary</option><option value="Intermediate">Intermediate</option><option value="Upper-Intermediate">Upper-Intermediate</option><option value="Advanced">Advanced</option><option value="Fluent">Fluent</option><option value="Native">Native</option></select></div>
+ <button onclick="addLanguageFromForm()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 justify-center"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+ </div>
+ </div>
+ </div>
+ <div id="goalsSection" class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-bullseye text-orange-500"></i> Maqsadlar</h2>
+ <div id="goalsList" class="space-y-3 mb-4"></div>
+ <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+ <h3 class="text-sm font-semibold text-gray-700 mb-3">Maqsad qo'shish</h3>
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+ <div><label class="block text-xs text-gray-600 mb-1">Maqsad sarlavhasi</label><input id="goalTitle" type="text" placeholder="Masalan: IELTS 7.0" class="w-full border border-gray-300 bg-white text-gray-800 p-2 rounded-lg text-sm"></div>
+ <div><label class="block text-xs text-gray-600 mb-1">Maqsad sanasi</label><input id="goalDate" type="date" class="w-full border border-gray-300 bg-white text-gray-800 p-2 rounded-lg text-sm"></div>
+ <button onclick="addGoalFromForm()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 justify-center"><i class="fa-solid fa-plus"></i> Qo'shish</button>
+ </div>
+ </div>
+ </div>
+ <div class="bg-white rounded-2xl shadow p-6">
+ <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen text-teal-500"></i> Shaxsiy bayonot</h2>
+ <textarea id="personalStatement" rows="6" class="w-full border border-gray-300 bg-white text-gray-800 p-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" placeholder="Nima uchun shu sohani tanladingiz?"></textarea>
+ <div class="mt-2 flex items-center gap-4 text-sm text-gray-600">
+ <span>So'zlar soni: <span id="wordCount" class="font-medium text-gray-800">0</span></span>
+ <span id="statementWarning" class="text-red-500 hidden">30–60 so'z oralig'ida yozish tavsiya etiladi.</span>
+ </div>
+ </div>
+ <div class="flex justify-end pb-6">
+ <button onclick="savePortfolio()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-2xl font-semibold text-lg transition-colors flex items-center gap-3 shadow-lg"><i class="fa-solid fa-floppy-disk"></i> Saqlash</button>
+ </div>
+</div>
+<script>
+// ===== STATE =====
+let skillsData = [];
+let goalsData = [];
+let languagesData = [];
+let photoBase64 = null;
+let currentStudentId = null;
+
+// ===== DARK MODE ICON =====
+function updateDarkIcon() {
+ const isDark = document.documentElement.classList.contains('dark');
+ document.getElementById('darkIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+// ===== PHOTO UPLOAD (Task 12.1) =====
+function handlePhotoUpload(file) {
+ const MAX_SIZE = 2 * 1024 * 1024;
+ if (file.size > MAX_SIZE) {
+ showAlert("Rasm hajmi 2 MB dan oshmasligi kerak","Xatolik");
+ return Promise.resolve(null);
+ }
+ return new Promise((resolve, reject) => {
+ const reader = new FileReader();
+ reader.onload = e => resolve(e.target.result);
+ reader.onerror = reject;
+ reader.readAsDataURL(file);
+ });
+}
+
+function onPhotoInputChange(input) {
+ const file = input.files[0];
+ if (!file) return;
+ handlePhotoUpload(file).then(base64 => {
+ if (!base64) return;
+ photoBase64 = base64;
+ const preview = document.getElementById('photoPreview');
+ preview.innerHTML = '<img src="' + base64 + '" class="w-full h-full object-cover">';
+ });
+}
+
+// ===== SKILLS (Task 12.2) =====
+function addSkill(name, level) {
+ if (!name || !name.trim()) return;
+ skillsData.push({ name: name.trim(), level: parseInt(level) || 50 });
+ renderSkills(skillsData);
+}
+
+function removeSkill(index) {
+ skillsData.splice(index, 1);
+ renderSkills(skillsData);
+}
+
+function renderSkills(skills) {
+ const container = document.getElementById('skillsList');
+ if (!skills || skills.length === 0) {
+ container.innerHTML = '<p class="text-sm text-gray-500">Hali ko\'nikmalar qo\'shilmagan</p>';
+ return;
+ }
+ container.innerHTML = skills.map((s, i) => {
+ const color = s.level >= 80 ? 'bg-green-500' : s.level >= 50 ? 'bg-indigo-500' : 'bg-yellow-500';
+ return '<div class="flex items-center gap-3">' +
+ '<span class="text-sm font-medium text-gray-700 w-32 flex-shrink-0">' + s.name + '</span>' +
+ '<div class="flex-1 bg-gray-200 rounded-full h-3"><div class="' + color + ' h-3 rounded-full transition-all" style="width:' + s.level + '%"></div></div>' +
+ '<span class="text-xs text-gray-500 w-10 text-right">' + s.level + '%</span>' +
+ '<button onclick="removeSkill(' + i + ')" class="text-red-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+ '</div>';
+ }).join('');
+}
+
+function addSkillFromForm() {
+ const name = document.getElementById('skillName').value.trim();
+ const level = document.getElementById('skillLevel').value;
+ if (!name) { showAlert("Ko\'nikma nomini kiriting!","Xatolik"); return; }
+ addSkill(name, level);
+ document.getElementById('skillName').value = '';
+ document.getElementById('skillLevel').value = 50;
+ document.getElementById('skillLevelDisplay').textContent = '50';
+}
+
+// ===== GOALS (Task 12.3) =====
+function addGoal(title, targetDate) {
+ if (!title || !title.trim()) return;
+ goalsData.push({ title: title.trim(), targetDate: targetDate || '', status: 'Bajarilmagan' });
+ renderGoals(goalsData);
+}
+
+function toggleGoalStatus(index) {
+ if (!goalsData[index]) return;
+ goalsData[index].status = goalsData[index].status === 'Bajarilmagan' ? 'Bajarilgan' : 'Bajarilmagan';
+ renderGoals(goalsData);
+}
+
+function renderGoals(goals) {
+ const container = document.getElementById('goalsList');
+ if (!goals || goals.length === 0) {
+ container.innerHTML = '<p class="text-sm text-gray-500">Hali maqsadlar qo\'shilmagan</p>';
+ return;
+ }
+ container.innerHTML = goals.map((g, i) => {
+ const done = g.status === 'Bajarilgan';
+ const badge = done
+ ? 'bg-green-100 text-green-700'
+ : 'bg-gray-100 text-gray-600';
+ return '<div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">' +
+ '<div class="flex-1">' +
+ '<div class="font-medium text-gray-800 text-sm ' + (done ? 'line-through opacity-60' : '') + '">' + g.title + '</div>' +
+ (g.targetDate ? '<div class="text-xs text-gray-500 mt-0.5">📅 ' + g.targetDate + '</div>' : '') +
+ '</div>' +
+ '<div class="flex items-center gap-2 ml-3">' +
+ '<span class="px-2 py-0.5 rounded-full text-xs font-medium ' + badge + '">' + g.status + '</span>' +
+ '<button onclick="toggleGoalStatus(' + i + ')" class="text-indigo-500 hover:text-indigo-700 text-xs px-2 py-1 rounded-lg border border-indigo-200 transition-colors">' + (done ? 'Qaytarish' : 'Bajarildi') + '</button>' +
+ '<button onclick="removeGoal(' + i + ')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+ '</div>' +
+ '</div>';
+ }).join('');
+}
+
+function removeGoal(index) {
+ goalsData.splice(index, 1);
+ renderGoals(goalsData);
+}
+
+function addGoalFromForm() {
+ const title = document.getElementById('goalTitle').value.trim();
+ const date = document.getElementById('goalDate').value;
+ if (!title) { showAlert("Maqsad sarlavhasini kiriting!","Xatolik"); return; }
+ addGoal(title, date);
+ document.getElementById('goalTitle').value = '';
+ document.getElementById('goalDate').value = '';
+}
+
+// ===== LANGUAGES =====
+function addLanguage(name, level) {
+ if (!name || !name.trim()) return;
+ languagesData.push({ name: name.trim(), level: level || 'Intermediate' });
+ renderLanguages(languagesData);
+}
+
+function removeLanguage(index) {
+ languagesData.splice(index, 1);
+ renderLanguages(languagesData);
+}
+
+function renderLanguages(languages) {
+ const container = document.getElementById('languagesList');
+ if (!languages || languages.length === 0) {
+ container.innerHTML = '<p class="text-sm text-gray-500">Hali tillar qo\'shilmagan</p>';
+ return;
+ }
+ container.innerHTML = languages.map((lang, i) => {
+ const levelColors = {
+ 'Beginner': 'bg-red-100 text-red-700',
+ 'Elementary': 'bg-orange-100 text-orange-700',
+ 'Intermediate': 'bg-yellow-100 text-yellow-700',
+ 'Upper-Intermediate': 'bg-lime-100 text-lime-700',
+ 'Advanced': 'bg-green-100 text-green-700',
+ 'Fluent': 'bg-blue-100 text-blue-700',
+ 'Native': 'bg-purple-100 text-purple-700'
+ };
+ const colorClass = levelColors[lang.level] || 'bg-gray-100 text-gray-700';
+ return '<div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">' +
+ '<div class="flex items-center gap-3">' +
+ '<span class="text-2xl">🌐</span>' +
+ '<div>' +
+ '<div class="font-medium text-gray-800 text-sm">' + lang.name + '</div>' +
+ '<span class="text-xs px-2 py-0.5 rounded-full ' + colorClass + '">' + lang.level + '</span>' +
+ '</div>' +
+ '</div>' +
+ '<button onclick="removeLanguage(' + i + ')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+ '</div>';
+ }).join('');
+}
+
+function addLanguageFromForm() {
+ const name = document.getElementById('languageName').value.trim();
+ const level = document.getElementById('languageLevel').value;
+ if (!name) { showAlert("Til nomini kiriting!","Xatolik"); return; }
+ addLanguage(name, level);
+ document.getElementById('languageName').value = '';
+ document.getElementById('languageLevel').value = 'Intermediate';
+}
+
+function toggleCertForm() { document.getElementById('certForm').classList.toggle('hidden'); }
+function toggleGradeForm() { document.getElementById('gradeForm').classList.toggle('hidden'); }
+function toggleAchievementForm() { document.getElementById('achievementForm').classList.toggle('hidden'); }
+function toggleActivityForm() { document.getElementById('activityForm').classList.toggle('hidden'); }
+function toggleExperienceForm() { document.getElementById('experienceForm').classList.toggle('hidden'); }
+function toggleEducationForm() { document.getElementById('educationForm').classList.toggle('hidden'); }
+
+function saveCertificate() {
+ const name = document.getElementById('certName').value.trim();
+ const type = document.getElementById('certType').value;
+ const date = document.getElementById('certDate').value;
+ const expiry = document.getElementById('certExpiry').value;
+ const org = document.getElementById('certOrg').value.trim();
+ if (!name) { showAlert("Sertifikat nomini kiriting!","Xatolik"); return; }
+ let certs = getCertificates();
+ certs.push({ name, type, date, expiry, org });
+ renderCertificates(certs);
+ document.getElementById('certName').value = '';
+ document.getElementById('certType').value = '';
+ document.getElementById('certDate').value = '';
+ document.getElementById('certExpiry').value = '';
+ document.getElementById('certOrg').value = '';
+ toggleCertForm();
+}
+
+function getCertificates() {
+ return Array.from(document.querySelectorAll('.cert-item')).map(item => ({
+ name: item.querySelector('.cert-name').textContent,
+ date: item.querySelector('.cert-date').dataset.value,
+ expiry: item.querySelector('.cert-expiry')?.dataset.value || '',
+ type: item.querySelector('.cert-type').textContent,
+ org: item.querySelector('.cert-org')?.textContent || ''
+ }));
+}
+
+function getBadgeColor(type) {
+ switch(type) {
+ case"Til sertifikati": return"bg-blue-100 text-blue-700";
+ case"IT Sertifikati": return"bg-purple-100 text-purple-700";
+ case"Sport": return"bg-green-100 text-green-700";
+ case"Olimpiada": return"bg-yellow-100 text-yellow-700";
+ default: return"bg-gray-100 text-gray-700";
+ }
+}
+
+function renderCertificates(certs) {
+ const today = new Date();
+ document.getElementById('certList').innerHTML = certs.map(c => {
+ let expiryText ="♾ Doimiy amal qiladi";
+ let expiryBadge ="";
+ let expiryDate = c.expiry ? new Date(c.expiry) : null;
+ if (expiryDate) {
+ const diff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+ if (diff < 0) { expiryText ="❌ Muddati tugagan"; expiryBadge ="text-red-600 font-semibold"; }
+ else if (diff <= 30) { expiryText ="⚠️ Amal muddati yaqin"; expiryBadge ="text-yellow-600 font-semibold"; }
+ else { expiryText ="⏳ Amal qiladi:" + c.expiry; }
+ }
+ return '<div class="cert-item bg-gray-50 p-4 rounded-xl flex justify-between items-start">' +
+ '<div>' +
+ '<div class="font-semibold text-gray-800 cert-name">' + c.name + '</div>' +
+ '<span class="px-2 py-0.5 text-xs rounded-full ' + getBadgeColor(c.type) + ' cert-type mt-1 inline-block">' + (c.type ||"Kategoriya yo\'q") + '</span>' +
+ '<div class="text-xs text-gray-500 mt-1">📅 <span class="cert-date" data-value="' + (c.date||'') + '">' + (c.date||'—') + '</span></div>' +
+ '<div class="text-xs mt-0.5 ' + expiryBadge + '"><span class="cert-expiry" data-value="' + (c.expiry||'') + '">' + expiryText + '</span></div>' +
+ (c.org ? '<div class="text-xs text-gray-600 mt-0.5">🏢 <span class="cert-org">' + c.org + '</span></div>' : '') +
+ '</div>' +
+ '<button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 ml-2">🗑</button>' +
+ '</div>';
+ }).join('');
+}
+
+function saveGrade() {
+ const name = document.getElementById('subjectName').value.trim();
+ const grade = parseFloat(document.getElementById('subjectGrade').value);
+ const year = document.getElementById('subjectYear').value.trim();
+ if (!name || !grade) { showAlert("Fan va bahoni kiriting!","Xatolik"); return; }
+ let grades = getGrades();
+ grades.push({ name, grade, year });
+ renderGrades(grades);
+ document.getElementById('subjectName').value = '';
+ document.getElementById('subjectGrade').value = '';
+ document.getElementById('subjectYear').value = '';
+ toggleGradeForm();
+}
+
+function getGrades() {
+ return Array.from(document.querySelectorAll('.grade-item')).map(item => ({
+ name: item.querySelector('.grade-name').textContent,
+ grade: parseFloat(item.querySelector('.grade-score').textContent),
+ year: item.querySelector('.grade-year')?.dataset.year || ''
+ }));
+}
+
+function renderGrades(grades) {
+ document.getElementById('gradeList').innerHTML = grades.map(g =>
+ '<div class="grade-item bg-white border border-gray-200 p-4 rounded-xl relative">' +
+ '<button onclick="this.parentElement.remove();calculateGPA()" class="absolute top-2 right-2 text-gray-400 hover:text-red-600">🗑</button>' +
+ '<div class="font-semibold text-gray-800 grade-name">' + g.name + '</div>' +
+ '<div class="flex gap-2 mt-1 text-sm">' +
+ '<span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full">Baho: <span class="grade-score">' + g.grade + '</span></span>' +
+ (g.year ? '<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full grade-year" data-year="' + g.year + '">📅 ' + g.year + '</span>' : '') +
+ '</div>' +
+ '</div>'
+ ).join('');
+ calculateGPA();
+}
+
+function calculateGPA() {
+ const grades = getGrades();
+ if (grades.length === 0) { document.getElementById('gpaValue').textContent = '0.00'; return; }
+ const sum = grades.reduce((acc, g) => acc + g.grade, 0);
+ document.getElementById('gpaValue').textContent = (sum / grades.length).toFixed(2);
+}
+
+function saveAchievement() {
+ const title = document.getElementById('achTitle').value.trim();
+ const level = document.getElementById('achLevel').value;
+ const place = document.getElementById('achPlace').value;
+ if (!title || !level) { showAlert("Ma'lumotlarni to'ldiring!","Xatolik"); return; }
+ let achievements = getAchievements();
+ achievements.push({ title, level, place });
+ renderAchievements(achievements);
+ document.getElementById('achTitle').value = '';
+ document.getElementById('achLevel').value = '';
+ document.getElementById('achPlace').value = '';
+ toggleAchievementForm();
+}
+
+function getAchievements() {
+ return Array.from(document.querySelectorAll('.achievement-item')).map(item => ({
+ title: item.querySelector('.ach-title').textContent,
+ level: item.querySelector('.ach-level')?.textContent || '',
+ place: item.querySelector('.ach-place')?.textContent || ''
+ }));
+}
+
+function renderAchievements(data) {
+ document.getElementById('achievementList').innerHTML = data.map(a =>
+ '<div class="achievement-item bg-yellow-50 p-3 rounded-xl flex justify-between items-center">' +
+ '<div><div class="font-semibold text-gray-800 ach-title">' + a.title + '</div>' +
+ '<div class="text-xs text-gray-600"><span class="ach-level">' + a.level + '</span> • <span class="ach-place">' + a.place + '</span></div></div>' +
+ '<button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600">🗑</button>' +
+ '</div>'
+ ).join('');
+}
+
+function saveActivity() {
+ const title = document.getElementById('actTitle').value.trim();
+ const desc = document.getElementById('actDesc').value.trim();
+ if (!title) { showAlert("Faoliyat nomini kiriting!","Xatolik"); return; }
+ let activities = getActivities();
+ activities.push({ title, desc });
+ renderActivities(activities);
+ document.getElementById('actTitle').value = '';
+ document.getElementById('actDesc').value = '';
+ toggleActivityForm();
+}
+
+function getActivities() {
+ return Array.from(document.querySelectorAll('.activity-item')).map(item => ({
+ title: item.querySelector('.act-title').textContent,
+ desc: item.querySelector('.act-desc')?.textContent || ''
+ }));
+}
+
+function renderActivities(data) {
+ document.getElementById('activityList').innerHTML = data.map(a =>
+ '<div class="activity-item bg-pink-50 p-3 rounded-xl flex justify-between items-center">' +
+ '<div><div class="font-semibold text-gray-800 act-title">' + a.title + '</div>' +
+ '<div class="text-xs text-gray-600 act-desc">' + a.desc + '</div></div>' +
+ '<button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600">🗑</button>' +
+ '</div>'
+ ).join('');
+}
+
+// ===== EXPERIENCE (Work Experience) =====
+function saveExperience() {
+ const company = document.getElementById('expCompany').value.trim();
+ const position = document.getElementById('expPosition').value.trim();
+ const startDate = document.getElementById('expStartDate').value;
+ const endDate = document.getElementById('expEndDate').value;
+ const description = document.getElementById('expDescription').value.trim();
+ if (!company || !position) { showAlert("Kompaniya va lavozimni kiriting!","Xatolik"); return; }
+ let experiences = getExperiences();
+ experiences.push({ company, position, startDate, endDate, description });
+ renderExperiences(experiences);
+ document.getElementById('expCompany').value = '';
+ document.getElementById('expPosition').value = '';
+ document.getElementById('expStartDate').value = '';
+ document.getElementById('expEndDate').value = '';
+ document.getElementById('expDescription').value = '';
+ toggleExperienceForm();
+}
+
+function getExperiences() {
+ return Array.from(document.querySelectorAll('.experience-item')).map(item => ({
+ company: item.querySelector('.exp-company').textContent,
+ position: item.querySelector('.exp-position').textContent,
+ startDate: item.querySelector('.exp-start')?.textContent || '',
+ endDate: item.querySelector('.exp-end')?.textContent || '',
+ description: item.querySelector('.exp-desc')?.textContent || ''
+ }));
+}
+
+function renderExperiences(data) {
+ const container = document.getElementById('experienceList');
+ if (!data || data.length === 0) {
+ container.innerHTML = '<p class="text-sm text-gray-500">Hali ish tajribasi qo\'shilmagan</p>';
+ return;
+ }
+ container.innerHTML = data.map(exp =>
+ '<div class="experience-item bg-blue-50 p-4 rounded-xl">' +
+ '<div class="flex justify-between items-start mb-2">' +
+ '<div><div class="font-semibold text-gray-800 exp-company">' + exp.company + '</div>' +
+ '<div class="text-sm text-blue-600 exp-position">' + exp.position + '</div></div>' +
+ '<button onclick="this.closest(\'.experience-item\').remove()" class="text-red-400 hover:text-red-600">🗑</button>' +
+ '</div>' +
+ '<div class="text-xs text-gray-500 mb-1">' +
+ '<span class="exp-start">' + (exp.startDate || '') + '</span>' +
+ (exp.endDate ? ' - <span class="exp-end">' + exp.endDate + '</span>' : ' - Hozir') +
+ '</div>' +
+ (exp.description ? '<div class="text-sm text-gray-600 exp-desc">' + exp.description + '</div>' : '') +
+ '</div>'
+ ).join('');
+}
+
+// ===== EDUCATION (Education History) =====
+function saveEducation() {
+ const institution = document.getElementById('eduInstitution').value.trim();
+ const degree = document.getElementById('eduDegree').value.trim();
+ const startYear = document.getElementById('eduStartYear').value;
+ const endYear = document.getElementById('eduEndYear').value;
+ const field = document.getElementById('eduField').value.trim();
+ if (!institution || !degree) { showAlert("Ta'lim muassasasi va darajani kiriting!","Xatolik"); return; }
+ let educations = getEducations();
+ educations.push({ institution, degree, startYear, endYear, field });
+ renderEducations(educations);
+ document.getElementById('eduInstitution').value = '';
+ document.getElementById('eduDegree').value = '';
+ document.getElementById('eduStartYear').value = '';
+ document.getElementById('eduEndYear').value = '';
+ document.getElementById('eduField').value = '';
+ toggleEducationForm();
+}
+
+function getEducations() {
+ return Array.from(document.querySelectorAll('.education-item')).map(item => ({
+ institution: item.querySelector('.edu-institution').textContent,
+ degree: item.querySelector('.edu-degree').textContent,
+ startYear: item.querySelector('.edu-start')?.textContent || '',
+ endYear: item.querySelector('.edu-end')?.textContent || '',
+ field: item.querySelector('.edu-field')?.textContent || ''
+ }));
+}
+
+function renderEducations(data) {
+ const container = document.getElementById('educationList');
+ if (!data || data.length === 0) {
+ container.innerHTML = '<p class="text-sm text-gray-500">Hali ta\'lim tarixi qo\'shilmagan</p>';
+ return;
+ }
+ container.innerHTML = data.map(edu =>
+ '<div class="education-item bg-teal-50 p-4 rounded-xl">' +
+ '<div class="flex justify-between items-start mb-2">' +
+ '<div><div class="font-semibold text-gray-800 edu-institution">' + edu.institution + '</div>' +
+ '<div class="text-sm text-teal-600 edu-degree">' + edu.degree + '</div></div>' +
+ '<button onclick="this.closest(\'.education-item\').remove()" class="text-red-400 hover:text-red-600">🗑</button>' +
+ '</div>' +
+ '<div class="text-xs text-gray-500 mb-1">' +
+ '<span class="edu-start">' + (edu.startYear || '') + '</span>' +
+ (edu.endYear ? ' - <span class="edu-end">' + edu.endYear + '</span>' : ' - Hozir') +
+ '</div>' +
+ (edu.field ? '<div class="text-sm text-gray-600 edu-field">' + edu.field + '</div>' : '') +
+ '</div>'
+ ).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+ const ps = document.getElementById('personalStatement');
+ if (ps) {
+ ps.addEventListener('input', function() {
+ const words = ps.value.trim().split(/\s+/).filter(Boolean);
+ document.getElementById('wordCount').textContent = words.length;
+ const warn = document.getElementById('statementWarning');
+ if (words.length < 30 && words.length > 0) {
+ warn.textContent ="Kamida 30 so\'z yozish tavsiya etiladi.";
+ warn.classList.remove('hidden');
+ } else if (words.length > 120) {
+ warn.textContent ="Matn juda uzun. 30–60 so\'z optimal hisoblanadi.";
+ warn.classList.remove('hidden');
+ } else {
+ warn.classList.add('hidden');
+ }
+ });
+ }
+});
+
+// ===== BIRTH DATE =====
+document.addEventListener('DOMContentLoaded', function() {
+ const bd = document.getElementById('birthDate');
+ if (bd) {
+ bd.addEventListener('change', function() {
+ if (!bd.value) { document.getElementById('ageValue').textContent = '—'; return; }
+ const birth = new Date(bd.value);
+ const today = new Date();
+ let age = today.getFullYear() - birth.getFullYear();
+ const m = today.getMonth() - birth.getMonth();
+ if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+ document.getElementById('ageValue').textContent = age + ' yosh';
+ });
+ }
+});
+
+// ===== SAVE PORTFOLIO (Task 10.5) =====
+async function savePortfolio() {
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) { await showAlert("Student ID topilmadi!", "Xatolik"); return; }
+    const portfolios = safeGetItem('portfolios', {});
+    const portfolioData = {
+        fullName: document.getElementById('fullName').value || '',
+        email: document.getElementById('email').value || '',
+        phoneNumber: document.getElementById('phoneNumber').value || '',
+        birthDate: document.getElementById('birthDate').value || '',
+        region: document.getElementById('region').value || '',
+        school: document.getElementById('school').value || '',
+        major: document.getElementById('major').value || '',
+        linkedin: document.getElementById('linkedin').value || '',
+        github: document.getElementById('github').value || '',
+        portfolio: document.getElementById('portfolio').value || '',
+        certificates: getCertificates(),
+        grades: getGrades(),
+        achievements: getAchievements(),
+        activities: getActivities(),
+        experiences: getExperiences(),
+        educations: getEducations(),
+        personalStatement: document.getElementById('personalStatement').value || '',
+        gpa: document.getElementById('gpaValue').textContent || '0.00',
+        photoBase64: photoBase64 || portfolios[id]?.photoBase64 || null,
+        skills: skillsData,
+        languages: languagesData,
+        goals: goalsData
+    };
+    portfolios[id] = portfolioData;
+    safeSetItem('portfolios', portfolios);
+    await showAlert("Portfolio muvaffaqiyatli saqlandi!", "Muvaffaqiyat");
+    // Role ga qarab to'g'ri sahifaga qaytish
+    const role = localStorage.getItem('ep_user_role');
+    if (role === 'teacher') {
+        window.location.href = 'teacher.html';
+    } else {
+        window.location.href = 'student.html';
+    }
+}
+
+// ===== SIDEBAR =====
+function toggleSidebar() {
+    var s = document.getElementById('sidebar');
+    var o = document.getElementById('sidebarOverlay');
+    if (!s) return;
+    var open = !s.classList.contains('-translate-x-full');
+    if (open) { s.classList.add('-translate-x-full'); o.classList.add('hidden'); }
+    else { s.classList.remove('-translate-x-full'); o.classList.remove('hidden'); }
+}
+function closeSidebar() {
+    var s = document.getElementById('sidebar');
+    var o = document.getElementById('sidebarOverlay');
+    if (s) s.classList.add('-translate-x-full');
+    if (o) o.classList.add('hidden');
+}
+function scrollToSection(id) {
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    if (window.innerWidth < 768) closeSidebar();
+}
+
+// ===== GOBACK =====
+function goBack() {
+    const role = localStorage.getItem('ep_user_role');
+    if (role === 'teacher') {
+        window.location.href = 'teacher.html';
+    } else {
+        window.location.href = 'student.html';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+ const id = new URLSearchParams(window.location.search).get('id');
+ currentStudentId = id;
+ if (id) {
+ const hdr = document.getElementById('headerStudentId');
+ if (hdr) hdr.textContent = 'ID: ' + id;
+ const sidebarId = document.getElementById('sidebarStudentId');
+ if (sidebarId) sidebarId.textContent = 'ID: ' + id;
+ const portfolios = safeGetItem('portfolios', {});
+ const data = portfolios[id];
+ if (data) {
+ document.getElementById('fullName').value = data.fullName || '';
+ document.getElementById('email').value = data.email || '';
+ document.getElementById('phoneNumber').value = data.phoneNumber || '';
+ document.getElementById('birthDate').value = data.birthDate || '';
+ document.getElementById('region').value = data.region || '';
+ document.getElementById('school').value = data.school || '';
+ document.getElementById('major').value = data.major || '';
+ document.getElementById('linkedin').value = data.linkedin || '';
+ document.getElementById('github').value = data.github || '';
+ document.getElementById('portfolio').value = data.portfolio || '';
+ document.getElementById('personalStatement').value = data.personalStatement || '';
+ if (data.certificates) renderCertificates(data.certificates);
+ if (data.grades) renderGrades(data.grades);
+ if (data.achievements) renderAchievements(data.achievements);
+ if (data.activities) renderActivities(data.activities);
+ if (data.experiences) renderExperiences(data.experiences);
+ if (data.educations) renderEducations(data.educations);
+ if (data.skills) { skillsData = data.skills; renderSkills(skillsData); }
+ if (data.languages) { languagesData = data.languages; renderLanguages(languagesData); }
+ if (data.goals) { goalsData = data.goals; renderGoals(goalsData); }
+ if (data.photoBase64) {
+ photoBase64 = data.photoBase64;
+ document.getElementById('photoPreview').innerHTML = '<img src="' + data.photoBase64 + '" class="w-full h-full object-cover">';
+ }
+ }
+ calculateGPA();
+ }
+ 
+});
+</script>
+</div><!-- end p-4 -->
+</div><!-- end md:ml-64 -->
+</body>
+</html>

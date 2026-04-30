@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mening Portfolio - E-Portfolio Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="shared.js"></script>
+<style>
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeInUp .4s ease both}
+#sidebar{transition:transform .3s ease}
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 flex flex-col -translate-x-full md:translate-x-0">
+ <div class="p-5 border-b border-gray-200">
+ <div class="flex items-center gap-3">
+ <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-user-graduate text-white text-sm"></i></div>
+ <div><h2 class="font-bold text-sm text-gray-800">O'quvchi paneli</h2><p id="sidebarUserId" class="text-xs text-gray-500"></p></div>
+ </div>
+ </div>
+ <nav class="flex-1 p-4 space-y-1">
+ <button onclick="showSection('portfolio')" id="nav-portfolio" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-blue-50 text-blue-700 text-left"><i class="fas fa-id-card w-5 text-center"></i> Portfolio</button>
+ <a href="portfolio-editor.html" id="nav-edit" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-600 hover:bg-gray-100"><i class="fas fa-edit w-5 text-center"></i> Tahrirlash</a>
+ <button onclick="goToPublicView()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-600 hover:bg-gray-100 text-left"><i class="fas fa-share-alt w-5 text-center"></i> Ulashish</button>
+ <button onclick="showSection('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-gray-600 hover:bg-gray-100 text-left"><i class="fas fa-user-circle w-5 text-center"></i> Profil</button>
+ </nav>
+ <div class="p-4 border-t border-gray-200">
+ <p class="text-xs text-gray-400 text-center">E-Portfolio Pro v2.0</p>
+ </div>
+</aside>
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-30 hidden" onclick="closeSidebar()"></div>
+
+<div class="md:ml-64 min-h-screen flex flex-col">
+ <header class="bg-white shadow-sm sticky top-0 z-20 px-4 py-3 flex items-center gap-3">
+ <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-xl hover:bg-gray-100 transition"><i class="fas fa-bars text-gray-600"></i></button>
+ <h1 class="flex-1 font-bold text-gray-800">Mening Elektron Portfolio</h1>
+ <span id="userInfo" class="text-sm text-gray-500 hidden sm:block"></span>
+ 
+ <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 active:scale-95 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all"><i class="fas fa-sign-out-alt"></i><span class="hidden sm:inline ml-1">Chiqish</span></button>
+ </header>
+
+ <main class="flex-1 p-4 md:p-6 lg:p-8">
+ <section id="portfolioSection">
+ <div id="portfolioContent" class="anim bg-white rounded-3xl shadow-xl p-6 md:p-10"></div>
+ <div class="flex flex-wrap gap-3 justify-center mt-6">
+ <button onclick="goToPublicView()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-6 py-3 rounded-2xl font-semibold transition-all"><i class="fas fa-share-alt"></i> Ulashish</button>
+ <button onclick="downloadPDF()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white px-6 py-3 rounded-2xl font-semibold transition-all"><i class="fas fa-file-pdf"></i> PDF yuklab olish</button>
+ </div>
+ </section>
+ <section id="settingsSection" class="hidden">
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: Student Profile Card -->
+        <div class="lg:col-span-1 space-y-4">
+
+            <!-- Profile Card -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <div id="studentAvatar" class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-sm">S</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h2 id="studentProfileName" class="text-lg font-bold text-gray-800">—</h2>
+                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-user-graduate text-xs"></i> O'quvchi
+                                </span>
+                            </div>
+                            <p id="studentProfileMajor" class="text-sm text-blue-600 font-medium mt-0.5"></p>
+                            <p id="studentProfileId" class="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                                <i class="fas fa-id-badge text-blue-400 text-xs"></i> <span></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div class="grid grid-cols-3">
+                    <div class="py-4 text-center border-r border-gray-100">
+                        <div id="sStatGPA" class="text-xl font-bold text-green-600">—</div>
+                        <div class="text-xs text-gray-500">GPA</div>
+                    </div>
+                    <div class="py-4 text-center border-r border-gray-100">
+                        <div id="sStatScore" class="text-xl font-bold text-indigo-600">—</div>
+                        <div class="text-xs text-gray-500">Portfolio</div>
+                    </div>
+                    <div class="py-4 text-center">
+                        <div id="sStatCerts" class="text-xl font-bold text-yellow-600">—</div>
+                        <div class="text-xs text-gray-500">Sertifikat</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Change -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2 text-sm">
+                    <i class="fas fa-shield-alt text-blue-500"></i> Xavfsizlik
+                </h3>
+                <p class="text-xs text-gray-500 font-medium mb-2 uppercase tracking-wide">Parol</p>
+                <div class="space-y-2">
+                    <div class="relative">
+                        <input id="curPass" type="password" placeholder="Joriy parol"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 transition-all">
+                        <button type="button" onclick="togglePass('curPass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input id="newPass" type="password" placeholder="Yangi parol (kamida 6)"
+                            class="w-full pr-9 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 transition-all">
+                        <button type="button" onclick="togglePass('newPass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <button onclick="handleChangePass()" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white py-2.5 rounded-xl text-sm font-medium transition-all">
+                        Parolni o'zgartirish
+                    </button>
+                    <p id="passMsg" class="text-xs text-center hidden"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Info + Quick Actions -->
+        <div class="lg:col-span-2 space-y-4">
+
+            <!-- Personal Info Card -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
+                    <i class="fas fa-info-circle text-blue-500"></i> Shaxsiy ma'lumotlar
+                </h3>
+                <div id="studentInfoGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
+                    <i class="fas fa-bolt text-blue-500"></i> Tezkor amallar
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <button onclick="showSection('portfolio')"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 transition-all">
+                        <i class="fas fa-id-card text-xl"></i>
+                        <span class="text-xs font-semibold">Portfolio</span>
+                    </button>
+                    <a href="portfolio-editor.html" id="profileEditLink"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:scale-95 text-indigo-700 transition-all">
+                        <i class="fas fa-edit text-xl"></i>
+                        <span class="text-xs font-semibold">Tahrirlash</span>
+                    </a>
+                    <button onclick="goToPublicView()"
+                        class="flex flex-col items-center gap-2 p-4 rounded-xl bg-green-50 hover:bg-green-100 active:scale-95 text-green-700 transition-all">
+                        <i class="fas fa-share-alt text-xl"></i>
+                        <span class="text-xs font-semibold">Ulashish</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Achievements preview -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-trophy text-yellow-500"></i> Yutuqlar
+                    </h3>
+                    <button onclick="showSection('portfolio')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                        Barchasi <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <div id="studentAchievements" class="space-y-2">
+                    <p class="text-sm text-gray-400 text-center py-4">Yutuqlar yo'q</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+ </section>
+ </main>
+</div>
+
+<script>
+var currentId = null;
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleSidebar(){ var s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay'); var open=!s.classList.contains('-translate-x-full'); if(open){s.classList.add('-translate-x-full');o.classList.add('hidden');}else{s.classList.remove('-translate-x-full');o.classList.remove('hidden');} }
+function closeSidebar(){ document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebarOverlay').classList.add('hidden'); }
+function showSection(name) {
+  // Show/hide sections
+  document.getElementById('portfolioSection').classList.toggle('hidden', name !== 'portfolio');
+  document.getElementById('settingsSection').classList.toggle('hidden', name !== 'settings');
+
+  // Update active nav state
+  var navMap = {
+    'portfolio': 'nav-portfolio',
+    'settings': 'nav-settings'
+  };
+  ['nav-portfolio', 'nav-settings'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('bg-blue-50', 'text-blue-700');
+    el.classList.add('text-gray-600', 'hover:bg-gray-100');
+  });
+  var activeId = navMap[name];
+  if (activeId) {
+    var activeEl = document.getElementById(activeId);
+    if (activeEl) {
+      activeEl.classList.add('bg-blue-50', 'text-blue-700');
+      activeEl.classList.remove('text-gray-600', 'hover:bg-gray-100');
+    }
+  }
+
+  // Close sidebar on mobile
+  if (window.innerWidth < 768) closeSidebar();
+
+  // If profile section, render student profile
+  if (name === 'settings') renderStudentProfile();
+}
+function generateShareLink(id){ return window.location.origin+'/public.html?id='+encodeURIComponent(id); }
+function handleShare(){ if(!currentId)return; var link=generateShareLink(currentId); if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){showAlert('Havola nusxalandi!','Muvaffaqiyat');});}else{showAlert('Havola: '+link,'Ulashish havolasi');} }
+
+// ===== GO TO PUBLIC VIEW =====
+function goToPublicView() {
+  if (!currentId) {
+    showAlert('Student ID topilmadi!', 'Xatolik');
+    return;
+  }
+  console.log('Going to public view with ID:', currentId);
+  // Public.html ga o'tish (o'z ID bilan)
+  window.location.href = 'public.html?id=' + encodeURIComponent(currentId);
+}
+
+function renderStudentProfile() {
+  var id = currentId || localStorage.getItem('ep_user_id');
+  if (!id) return;
+  var portfolios = safeGetItem('portfolios', {});
+  var data = portfolios[id] || {};
+  var score = calculateScore(data);
+
+  // Avatar initials
+  var initials = (data.fullName || id).substring(0, 2).toUpperCase();
+  var avatarEl = document.getElementById('studentAvatar');
+  if (avatarEl) avatarEl.textContent = initials;
+
+  // Name, major, id
+  var nameEl = document.getElementById('studentProfileName');
+  if (nameEl) nameEl.textContent = data.fullName || id;
+  var majorEl = document.getElementById('studentProfileMajor');
+  if (majorEl) majorEl.textContent = data.major || '';
+  var idEl = document.getElementById('studentProfileId');
+  if (idEl) idEl.querySelector('span').textContent = id;
+
+  // Stats
+  var gpaEl = document.getElementById('sStatGPA');
+  var scoreEl = document.getElementById('sStatScore');
+  var certsEl = document.getElementById('sStatCerts');
+  if (gpaEl) gpaEl.textContent = data.gpa && data.gpa !== '0.00' ? data.gpa : '—';
+  if (scoreEl) scoreEl.textContent = score + '%';
+  if (certsEl) certsEl.textContent = (data.certificates || []).length;
+
+  // Edit link
+  var editLink = document.getElementById('profileEditLink');
+  if (editLink) editLink.href = 'portfolio-editor.html?id=' + encodeURIComponent(id);
+
+  // Personal info grid
+  var infoGrid = document.getElementById('studentInfoGrid');
+  if (infoGrid) {
+    var items = [
+      { icon: 'fa-user', label: 'Ism', val: data.fullName },
+      { icon: 'fa-graduation-cap', label: "Yo'nalish", val: data.major },
+      { icon: 'fa-school', label: 'Maktab', val: data.school },
+      { icon: 'fa-map-marker-alt', label: 'Hudud', val: data.region },
+      { icon: 'fa-calendar', label: "Tug'ilgan sana", val: data.birthDate },
+      { icon: 'fa-star', label: 'GPA', val: data.gpa && data.gpa !== '0.00' ? data.gpa : null }
+    ];
+    infoGrid.innerHTML = items.filter(function(i) { return i.val; }).map(function(item) {
+      return '<div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">' +
+        '<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">' +
+        '<i class="fas ' + item.icon + ' text-blue-500 text-xs"></i></div>' +
+        '<div><div class="text-xs text-gray-500">' + item.label + '</div>' +
+        '<div class="font-semibold text-gray-800 text-sm">' + esc(item.val) + '</div></div></div>';
+    }).join('') || '<p class="text-sm text-gray-400 col-span-2 text-center py-2">Ma\'lumotlar kiritilmagan</p>';
+  }
+
+  // Achievements preview
+  var achEl = document.getElementById('studentAchievements');
+  if (achEl) {
+    var achs = data.achievements || [];
+    if (achs.length === 0) {
+      achEl.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Yutuqlar yo\'q</p>';
+    } else {
+      var placeColors = { "1-o'rin": 'bg-yellow-100 text-yellow-700', "2-o'rin": 'bg-gray-100 text-gray-600', "3-o'rin": 'bg-orange-100 text-orange-600', "G'olib": 'bg-green-100 text-green-700' };
+      achEl.innerHTML = achs.slice(0, 4).map(function(a) {
+        var pc = placeColors[a.place] || 'bg-gray-100 text-gray-600';
+        return '<div class="flex items-center gap-3 bg-yellow-50 p-3 rounded-xl">' +
+          '<div class="w-9 h-9 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">' +
+          '<i class="fas fa-medal text-yellow-600 text-sm"></i></div>' +
+          '<div class="flex-1"><div class="font-semibold text-gray-800 text-sm">' + esc(a.title) + '</div>' +
+          '<div class="text-xs text-gray-500">' + esc(a.level || '') + '</div></div>' +
+          (a.place ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full ' + pc + '">' + esc(a.place) + '</span>' : '') +
+          '</div>';
+      }).join('');
+    }
+  }
+}
+
+function calculateScore(data){
+ if(!data)return 0;
+ var s=0,gpa=parseFloat(data.gpa)||0;
+ if(gpa>=4.5)s+=30;else if(gpa>=4.0)s+=20;else if(gpa>0)s+=10;
+ var c=(data.certificates||[]).length; if(c>=5)s+=20;else if(c>=3)s+=15;else if(c>0)s+=8;
+ var a=(data.achievements||[]).length; if(a>=3)s+=20;else if(a>0)s+=10;
+ var ac=(data.activities||[]).length; if(ac>=3)s+=15;else if(ac>0)s+=8;
+ var w=(data.personalStatement||'').trim().split(/\s+/).filter(Boolean).length;
+ if(w>=500)s+=15;else if(w>=300)s+=10;else if(w>0)s+=5;
+ return Math.min(s,100);
+}
+
+function renderPortfolio(data, id) {
+  var score = calculateScore(data);
+
+  var c = document.getElementById('portfolioContent');
+  var photoHtml = data.photoBase64
+    ? '<img src="' + data.photoBase64 + '" class="w-20 h-20 rounded-full object-cover border-4 border-blue-200 flex-shrink-0">'
+    : '<div class="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-user text-3xl text-blue-400"></i></div>';
+
+  var barColor = score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-400';
+  var out = '<div class="space-y-8">';
+
+  // Header
+  out += '<div class="flex items-center gap-5 pb-6 border-b border-gray-100">';
+  out += photoHtml;
+  out += '<div><h2 class="text-2xl md:text-3xl font-bold text-gray-800">' + esc(data.fullName || '—') + '</h2>';
+  out += '<p class="text-blue-600 font-medium mt-1">' + esc(data.major || '') + '</p>';
+  out += '<div class="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-sm text-gray-600">';
+  if (data.school) out += '<span><i class="fas fa-school mr-1"></i>' + esc(data.school) + '</span>';
+  if (data.region) out += '<span><i class="fas fa-map-marker-alt mr-1"></i>' + esc(data.region) + '</span>';
+  if (data.gpa && data.gpa !== '0.00') out += '<span class="font-semibold text-green-600"><i class="fas fa-star mr-1"></i>GPA: ' + esc(data.gpa) + '</span>';
+  out += '</div>';
+  out += '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">';
+  if (data.email) out += '<span><i class="fas fa-envelope mr-1"></i>' + esc(data.email) + '</span>';
+  if (data.phoneNumber) out += '<span><i class="fas fa-phone mr-1"></i>' + esc(data.phoneNumber) + '</span>';
+  out += '</div>';
+  out += '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">';
+  if (data.linkedin) out += '<a href="' + esc(data.linkedin) + '" target="_blank" class="text-blue-600 hover:underline"><i class="fab fa-linkedin mr-1"></i>LinkedIn</a>';
+  if (data.github) out += '<a href="' + esc(data.github) + '" target="_blank" class="text-gray-700 hover:underline"><i class="fab fa-github mr-1"></i>GitHub</a>';
+  if (data.portfolio) out += '<a href="' + esc(data.portfolio) + '" target="_blank" class="text-indigo-600 hover:underline"><i class="fas fa-globe mr-1"></i>Portfolio</a>';
+  out += '</div></div></div>';
+
+  // Skills
+  if (data.skills && data.skills.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-chart-bar text-purple-500 mr-2"></i>Ko\'nikmalar</h3><div class="space-y-2">';
+    data.skills.forEach(function(s) {
+      var bc = s.level >= 80 ? 'bg-green-500' : s.level >= 50 ? 'bg-indigo-500' : 'bg-yellow-500';
+      out += '<div class="flex items-center gap-3"><span class="text-sm text-gray-700 w-28 flex-shrink-0">' + esc(s.name) + '</span><div class="flex-1 bg-gray-200 rounded-full h-2.5"><div class="' + bc + ' h-2.5 rounded-full" style="width:' + s.level + '%"></div></div><span class="text-xs text-gray-500 w-8 text-right">' + s.level + '%</span></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Languages
+  if (data.languages && data.languages.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-language text-cyan-500 mr-2"></i>Tillar</h3><div class="grid grid-cols-2 gap-3">';
+    data.languages.forEach(function(lang) {
+      var levelColors = {
+        'Beginner': 'bg-red-100 text-red-700',
+        'Elementary': 'bg-orange-100 text-orange-700',
+        'Intermediate': 'bg-yellow-100 text-yellow-700',
+        'Upper-Intermediate': 'bg-lime-100 text-lime-700',
+        'Advanced': 'bg-green-100 text-green-700',
+        'Fluent': 'bg-blue-100 text-blue-700',
+        'Native': 'bg-purple-100 text-purple-700'
+      };
+      var colorClass = levelColors[lang.level] || 'bg-gray-100 text-gray-700';
+      out += '<div class="bg-gray-50 p-3 rounded-xl"><div class="font-medium text-gray-800 text-sm mb-1">' + esc(lang.name) + '</div><span class="text-xs px-2 py-0.5 rounded-full ' + colorClass + '">' + esc(lang.level) + '</span></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Certificates
+  if (data.certificates && data.certificates.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-certificate text-green-500 mr-2"></i>Sertifikatlar</h3><div class="space-y-3">';
+    data.certificates.forEach(function(cert) {
+      out += '<div class="bg-gray-100 p-4 rounded-2xl"><div class="font-semibold text-lg">' + esc(cert.name) + '</div>';
+      if (cert.type) out += '<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mt-1 inline-block">' + esc(cert.type) + '</span>';
+      if (cert.date) out += '<div class="text-sm text-gray-600 mt-1">📅 ' + esc(cert.date) + '</div>';
+      if (cert.expiry) out += '<div class="text-sm text-gray-600">⏳ ' + esc(cert.expiry) + '</div>';
+      if (cert.org) out += '<div class="text-sm text-gray-600">🏢 ' + esc(cert.org) + '</div>';
+      out += '</div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Grades
+  if (data.grades && data.grades.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-book text-indigo-500 mr-2"></i>Akademik natijalar</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
+    data.grades.forEach(function(g) {
+      out += '<div class="bg-indigo-50 p-4 rounded-2xl"><div class="font-semibold">' + esc(g.name) + '</div><div class="flex gap-2 mt-2 text-sm flex-wrap"><span class="bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full">Baho: ' + esc(g.grade) + '</span>' + (g.year ? '<span class="bg-gray-200 px-3 py-1 rounded-full">📅 ' + esc(g.year) + '</span>' : '') + '</div></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Achievements
+  if (data.achievements && data.achievements.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-trophy text-yellow-500 mr-2"></i>Yutuqlar</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
+    data.achievements.forEach(function(a) {
+      out += '<div class="bg-yellow-50 p-4 rounded-2xl"><div class="font-semibold">' + esc(a.title) + '</div><div class="flex gap-2 mt-2 flex-wrap text-sm">' + (a.level ? '<span class="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full">🎯 ' + esc(a.level) + '</span>' : '') + (a.place ? '<span class="bg-orange-200 text-orange-800 px-3 py-1 rounded-full">🏅 ' + esc(a.place) + '</span>' : '') + '</div></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Activities
+  if (data.activities && data.activities.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-star text-pink-500 mr-2"></i>Qo\'shimcha faoliyat</h3><div class="space-y-2">';
+    data.activities.forEach(function(a) {
+      out += '<div class="bg-pink-50 p-4 rounded-xl"><div class="font-semibold">' + esc(a.title || a.name || '') + '</div><div class="text-sm text-gray-600">' + esc(a.desc || a.description || '') + '</div></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Work Experience
+  if (data.experiences && data.experiences.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-briefcase text-blue-500 mr-2"></i>Ish tajribasi</h3><div class="space-y-3">';
+    data.experiences.forEach(function(exp) {
+      out += '<div class="bg-blue-50 p-4 rounded-xl">';
+      out += '<div class="font-semibold text-gray-800">' + esc(exp.company) + '</div>';
+      out += '<div class="text-sm text-blue-600">' + esc(exp.position) + '</div>';
+      out += '<div class="text-xs text-gray-500 mt-1">' + (exp.startDate ? esc(exp.startDate) : '') + (exp.endDate ? ' - ' + esc(exp.endDate) : ' - Hozir') + '</div>';
+      if (exp.description) out += '<div class="text-sm text-gray-600 mt-2">' + esc(exp.description) + '</div>';
+      out += '</div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Education History
+  if (data.educations && data.educations.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-graduation-cap text-teal-500 mr-2"></i>Ta\'lim tarixi</h3><div class="space-y-3">';
+    data.educations.forEach(function(edu) {
+      out += '<div class="bg-teal-50 p-4 rounded-xl">';
+      out += '<div class="font-semibold text-gray-800">' + esc(edu.institution) + '</div>';
+      out += '<div class="text-sm text-teal-600">' + esc(edu.degree) + '</div>';
+      out += '<div class="text-xs text-gray-500 mt-1">' + (edu.startYear ? esc(edu.startYear) : '') + (edu.endYear ? ' - ' + esc(edu.endYear) : ' - Hozir') + '</div>';
+      if (edu.field) out += '<div class="text-sm text-gray-600 mt-2">' + esc(edu.field) + '</div>';
+      out += '</div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Goals
+  if (data.goals && data.goals.length > 0) {
+    out += '<div><h3 class="text-xl font-bold mb-4 text-gray-800"><i class="fas fa-bullseye text-orange-500 mr-2"></i>Maqsadlar</h3><div class="space-y-2">';
+    data.goals.forEach(function(g) {
+      var done = g.status === 'Bajarilgan';
+      out += '<div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl"><div><div class="text-sm font-medium ' + (done ? 'line-through opacity-60' : '') + '">' + esc(g.title) + '</div>' + (g.targetDate ? '<div class="text-xs text-gray-500">📅 ' + esc(g.targetDate) + '</div>' : '') + '</div><span class="text-xs px-2 py-0.5 rounded-full ' + (done ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600') + '">' + esc(g.status) + '</span></div>';
+    });
+    out += '</div></div>';
+  }
+
+  // Personal Statement
+  if (data.personalStatement && data.personalStatement.trim()) {
+    out += '<div><h3 class="text-xl font-bold mb-3 text-gray-800"><i class="fas fa-pen text-teal-500 mr-2"></i>Shaxsiy bayonot</h3><p class="text-gray-700 leading-relaxed">' + esc(data.personalStatement) + '</p></div>';
+  }
+
+  // QR + Doc ID
+  var now = new Date();
+  var ds = now.toISOString().slice(0,10).replace(/-/g,'');
+  var docId = 'PORT-' + id + '-' + ds;
+  var docCode = Math.random().toString(36).substring(2,10).toUpperCase();
+  out += '<div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-end flex-wrap gap-4">';
+  out += '<div class="text-xs text-gray-500 space-y-1"><p>Hujjat ID: <span class="font-semibold text-gray-700">' + docId + '</span></p><p>Tasdiqlash kodi: <span class="font-semibold text-gray-700">' + docCode + '</span></p></div>';
+  out += '<div id="qrCode" class="bg-white p-2 rounded-xl border border-gray-200"></div>';
+  out += '</div>';
+
+  out += '</div>';
+  c.innerHTML = out;
+
+  setTimeout(function() {
+    var qrEl = document.getElementById('qrCode');
+    if (qrEl && window.QRCode) new QRCode(qrEl, { text: generateShareLink(id), width: 130, height: 130 });
+  }, 100);
+}
+
+
+
+
+function switchTab(tabId) {
+  var tabs = ['tab-portfolio', 'tab-skills', 'tab-goals', 'tab-about'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById(t);
+    var btn = document.getElementById(t + '-btn');
+    if (el) el.classList.toggle('hidden', t !== tabId);
+    if (btn) {
+      if (t === tabId) {
+        btn.classList.add('border-b-2', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.remove('text-gray-500');
+      } else {
+        btn.classList.remove('border-b-2', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.add('text-gray-500');
+      }
+    }
+  });
+}
+
+async function downloadPDF(){
+ var el=document.getElementById('portfolioContent');
+ if(!el)return;
+ var canvas=await html2canvas(el,{scale:2,useCORS:true});
+ var imgData=canvas.toDataURL('image/png');
+ var {jsPDF}=window.jspdf;
+ var pdf=new jsPDF('p','mm','a4');
+ var pw=210,ph=297;
+ pdf.setDrawColor(0);pdf.setLineWidth(0.8);pdf.rect(5,5,pw-10,ph-10);
+ pdf.setDrawColor(180);pdf.setLineWidth(0.3);pdf.rect(10,10,pw-20,ph-20);
+ pdf.setFont('helvetica','bold');pdf.setFontSize(16);
+ pdf.text("O'QUVCHI PORTFOLIOSI",pw/2,18,{align:'center'});
+ pdf.setFontSize(9);pdf.setFont('helvetica','normal');
+ pdf.text('Sana: '+new Date().toLocaleDateString('uz-UZ'),pw-50,18);
+ pdf.setDrawColor(150);pdf.setLineWidth(0.3);pdf.line(15,22,pw-15,22);
+ var mt=28,mb=20,mw=pw-30,mh=ph-mt-mb;
+ var iw=canvas.width,ih=canvas.height;
+ var sc=Math.min(mw/iw,mh/ih);
+ var fw=iw*sc,fh=ih*sc,cx=(pw-fw)/2;
+ pdf.addImage(imgData,'PNG',cx,mt,fw,fh);
+ pdf.setDrawColor(150);pdf.line(15,ph-20,pw-15,ph-20);
+ pdf.setFontSize(9);
+ pdf.text("O'quvchi ID: "+currentId,15,ph-12);
+ pdf.text("Rasmiy akademik hujjat",pw-60,ph-12);
+ pdf.save("Portfolio_"+currentId+".pdf");
+}
+
+
+function togglePass(id, btn) {
+  var input = document.getElementById(id);
+  if (!input) return;
+  var isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  var icon = btn.querySelector('i');
+  if (icon) icon.className = isPass ? 'fas fa-eye-slash text-sm' : 'fas fa-eye text-sm';
+}
+function handleChangePass(){
+ var cur=document.getElementById('curPass').value;
+ var nw=document.getElementById('newPass').value;
+ var msg=document.getElementById('passMsg');
+ var res=changePassword(currentId,cur,nw);
+ msg.textContent=res.success?"Parol muvaffaqiyatli o'zgartirildi":(res.error||"Xatolik");
+ msg.className='text-xs text-center '+(res.success?'text-green-600':'text-red-500');
+ msg.classList.remove('hidden');
+ if(res.success){document.getElementById('curPass').value='';document.getElementById('newPass').value='';}
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+ checkSession('student');
+ 
+ var id=localStorage.getItem('ep_user_id');
+ currentId=id;
+ document.getElementById('userInfo').innerHTML='<i class="fas fa-user mr-1"></i>'+id+" (O'quvchi)";
+ document.getElementById('sidebarUserId').textContent=id;
+ var editLink=document.getElementById('nav-edit');
+ if(editLink)editLink.href='portfolio-editor.html?id='+encodeURIComponent(id);
+ var portfolios=safeGetItem('portfolios',{});
+ var data=portfolios[id];
+ if(data){renderPortfolio(data,id);}
+ else{document.getElementById('portfolioContent').innerHTML='<div class="text-center py-16 text-gray-400"><i class="fas fa-folder-open text-5xl mb-4 block"></i><p class="text-lg">Portfolio hali to\'ldirilmagan</p><a href="portfolio-editor.html?id='+encodeURIComponent(id)+'" class="mt-4 inline-block bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition">Portfolioni to\'ldirish</a></div>';}
+ document.getElementById('logoutBtn').addEventListener('click',async function(){var ok=await showConfirm("Haqiqatan ham chiqmoqchimisiz?");if(ok)logout();});
+});
+</script>
+</body>
+</html>

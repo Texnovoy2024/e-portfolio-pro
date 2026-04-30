@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Portfolio • O‘quvchilar uchun elektron tizim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75)), url('https://picsum.photos/id/1015/1920/1080');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 4px;
+            background: linear-gradient(to right, #3b82f6, #1e40af);
+            bottom: -10px;
+            left: 15%;
+            border-radius: 2px;
+        }
+
+        /* Animatsiyalar */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-60px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-fadeInUp {
+            opacity: 0;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .animate-fadeInLeft {
+            opacity: 0;
+            animation: fadeInLeft 1s ease-out forwards;
+        }
+
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-400 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-600 {
+            animation-delay: 0.6s;
+        }
+
+        .delay-800 {
+            animation-delay: 0.8s;
+        }
+
+        .portfolio-card {
+            transition: all 0.4s ease;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #3b82f6;
+            transition: width 0.4s ease;
+        }
+
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        /* Scroll qilganda navbar effekti */
+        .scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- NAVBAR -->
+    <nav id="navbar" class="bg-white shadow-md fixed w-full z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center gap-2 flex-shrink-0 cursor-pointer select-none" onclick="scrollToTop()" title="Bosh sahifaga qaytish">
+                <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 transition-all duration-200 hover:scale-105">
+                    <i class="fas fa-folder-open text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight leading-none hover:text-blue-600 transition-colors duration-200">E-Portfolio</h1>
+                    <p class="text-xs text-gray-500">O'quvchilar uchun</p>
+                </div>
+            </div>
+
+            <!-- Desktop nav links -->
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="#about" class="nav-link text-gray-700 hover:text-blue-600">Tizim haqida</a>
+                <a href="#create" class="nav-link text-gray-700 hover:text-blue-600">Yaratish</a>
+                <a href="#benefits" class="nav-link text-gray-700 hover:text-blue-600">Afzalliklar</a>
+                <a href="#demo" class="nav-link text-gray-700 hover:text-blue-600">DEMO</a>
+            </div>
+
+            <!-- Right buttons -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="auth.html"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Kirish</span>
+                </a>
+                <a href="#contact"
+                    class="hidden sm:flex bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="hidden lg:inline">Bog'lanish</span>
+                </a>
+                <button id="mobileMenuBtn" onclick="toggleMobileMenu()"
+                    class="md:hidden p-2 rounded-xl hover:bg-gray-100 transition">
+                    <i class="fas fa-bars text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
+            <a href="#about" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Tizim haqida</a>
+            <a href="#create" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Yaratish</a>
+            <a href="#benefits" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Afzalliklar</a>
+            <a href="#demo" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">DEMO</a>
+            <a href="#contact" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Bog'lanish</a>
+        </div>
+    </nav>
+
+    <!-- HERO - KICHIKROQ VA CHAPDA -->
+    <header class="hero-bg h-screen flex items-start pt-28 lg:pt-36 text-white">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-14">
+            <div class="max-w-3xl text-left space-y-6 lg:space-y-8">
+                <!-- Trend belgisi -->
+                <div
+                    class="inline-flex items-center gap-3 bg-white/20 backdrop-blur-md px-4 py-2.5 rounded-3xl text-sm font-medium">
+                    <span class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></span>
+                    2026-yilgi ta’lim trendi
+                </div>
+
+                <!-- Sarlavha - kichraytirildi -->
+                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
+                    O‘quvchilar uchun<br>
+                    <span class="text-blue-300">Elektron Portfolio</span> Tizimi
+                </h1>
+
+                <!-- Tavsif - kichraytirildi -->
+                <p class="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl leading-relaxed">
+                    Yutuqlar, loyihalar va ko‘nikmalarni bir joyga jamlang.
+                    Ta’limni raqamlashtiring va har bir o‘quvchini individual kuzatib boring.
+                </p>
+
+                <!-- Tugmalar - kichraytirildi -->
+                <div class="flex flex-wrap gap-5 sm:gap-6 mt-6">
+                    <a href="#demo"
+                        class="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-3xl font-semibold text-base sm:text-lg inline-flex items-center gap-3 transition shadow-xl hover:shadow-2xl hover:scale-105">
+                        <i class="fas fa-play"></i>
+                        DEMO ni sinab ko‘rish
+                    </a>
+                    <a href="#create"
+                        class="border-2 border-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-3xl font-semibold text-base sm:text-lg transition shadow-xl hover:shadow-2xl hover:scale-105">
+                        Tizimni yaratish
+                    </a>
+                </div>
+
+                <!-- Pastdagi 3 belgi - kichraytirildi -->
+                <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-6 sm:gap-10 text-base sm:text-lg">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                        <span>100% bepul asos</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                        <span>O‘zbek tilida</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                        <span>Maktabga moslashtirilgan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- ABOUT -->
+    <section id="about" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <span class="text-blue-600 font-semibold tracking-widest animate-fadeInLeft">NIMA BU?</span>
+                    <h2 class="section-title text-5xl font-bold animate-fadeInLeft delay-200">
+                        Elektron Portfolio — bu kelajak
+                    </h2>
+                    <div class="space-y-6 text-lg text-gray-600">
+                        <p class="animate-fadeInLeft delay-400">
+                            <i class="fas fa-folder-open text-blue-500 mr-2"></i>
+                            Elektron portfolio — o‘quvchining butun o‘quv jarayonidagi yutuqlarini
+                            <span class="font-semibold text-blue-600">raqamli formatda</span> saqlaydigan,
+                            ko‘rsatadigan va baholaydigan zamonaviy tizim.
+                        </p>
+                        <p class="animate-fadeInLeft delay-600">
+                            <i class="fas fa-chart-line text-green-500 mr-2"></i>
+                            Rasmlar, videolar, loyihalar, refleksiyalar, sertifikatlar — hammasi bitta
+                            shaxsiy sahifada. O‘quvchi o‘z rivojlanishini kuzatadi, o‘qituvchi real vaqt
+                            rejimida kuzatadi, ota-onalar esa har doim xabardor.
+                        </p>
+                    </div>
+                    <div class="mt-12 grid grid-cols-3 gap-8 text-center">
+                        <div class="animate-fadeInUp delay-200">
+                            <div class="text-6xl mb-3">📂</div>
+                            <div class="font-bold text-4xl">500+</div>
+                            <div class="text-gray-600 mt-1">Loyiha namunasi</div>
+                        </div>
+                        <div class="animate-fadeInUp delay-400">
+                            <div class="text-6xl mb-3">👨‍🎓</div>
+                            <div class="font-bold text-4xl">15 000+</div>
+                            <div class="text-gray-600 mt-1">O‘quvchi foydalanuvchisi</div>
+                        </div>
+                        <div class="animate-fadeInUp delay-600">
+                            <div class="text-6xl mb-3">🏫</div>
+                            <div class="font-bold text-4xl">120</div>
+                            <div class="text-gray-600 mt-1">Maktab integratsiyasi</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative animate-fadeInLeft delay-800">
+                    <img src="https://picsum.photos/id/201/800/600" alt="Elektron portfolio interfeysi"
+                        class="rounded-3xl shadow-2xl w-full">
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- YARATISH BOSQICHLARI -->
+    <section id="create" class="py-24 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-blue-600 font-semibold">ASOSIYSI</span>
+                <h2 class="text-5xl font-bold mt-3">Tizimni qanday yaratamiz?</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-white rounded-3xl p-8 portfolio-card">
+                    <div
+                        class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto">
+                        🎯
+                    </div>
+                    <h3 class="font-semibold text-2xl mb-3 text-center">Maqsadni belgilash</h3>
+                    <ul class="space-y-3 text-gray-600 text-center">
+                        <li>Kim uchun? (maktab, litsey, kollej)</li>
+                        <li>Qanday ko‘nikmalar baholanadi?</li>
+                        <li>O‘quv dasturi bilan bog‘lash</li>
+                    </ul>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white rounded-3xl p-8 portfolio-card">
+                    <div
+                        class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto">
+                        🛠️
+                    </div>
+                    <h3 class="font-semibold text-2xl mb-3 text-center">Platforma tanlash</h3>
+                    <div class="space-y-4 text-center">
+                        <p class="font-medium">Google Sites / Canva</p>
+                        <p class="text-sm text-gray-500">Tez va oddiy</p>
+                        <p class="font-medium mt-4">Custom (HTML + Firebase)</p>
+                        <p class="text-sm text-gray-500">To‘liq nazorat</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white rounded-3xl p-8 portfolio-card">
+                    <div
+                        class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto">
+                        📥
+                    </div>
+                    <h3 class="font-semibold text-2xl mb-3 text-center">Kontent to‘plash</h3>
+                    <p class="text-gray-600 mb-6 text-center">O‘quvchilarga topshiriq berish:</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <span class="px-5 py-2 bg-blue-50 text-blue-700 rounded-3xl text-sm">📸 Foto va video</span>
+                        <span class="px-5 py-2 bg-blue-50 text-blue-700 rounded-3xl text-sm">📝 Refleksiya</span>
+                        <span class="px-5 py-2 bg-blue-50 text-blue-700 rounded-3xl text-sm">🏅 Sertifikatlar</span>
+                        <span class="px-5 py-2 bg-blue-50 text-blue-700 rounded-3xl text-sm">📊 Loyihalar</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#demo"
+                    class="inline-flex items-center gap-3 text-blue-600 hover:text-blue-700 font-medium text-lg">
+                    To‘liq bosqichni DEMO da ko‘rish <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- JORIY ETISH -->
+    <section id="implement" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-12 gap-16">
+                <div class="md:col-span-5">
+                    <h2 class="text-5xl font-bold leading-tight">Ta’lim jarayoniga qanday joriy qilamiz?</h2>
+                    <div class="mt-10 space-y-8">
+                        <div class="flex gap-6">
+                            <div
+                                class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-2xl flex items-center justify-center text-xl">
+                                👩‍🏫</div>
+                            <div>
+                                <h4 class="font-semibold text-xl">O‘qituvchilar uchun trening</h4>
+                                <p class="text-gray-600">2 soatlik onlayn/offlayn trening + qo‘llanma</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <div
+                                class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-2xl flex items-center justify-center text-xl">
+                                📅</div>
+                            <div>
+                                <h4 class="font-semibold text-xl">Har chorakda 1 ta topshiriq</h4>
+                                <p class="text-gray-600">Portfolio to‘ldirish majburiy bo‘ladi</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <div
+                                class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-2xl flex items-center justify-center text-xl">
+                                📊</div>
+                            <div>
+                                <h4 class="font-semibold text-xl">Baholash tizimi</h4>
+                                <p class="text-gray-600">Rubrika + avtomatik hisobot</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-7 bg-gray-50 rounded-3xl p-10">
+                    <h3 class="text-2xl font-semibold mb-8 flex items-center gap-3">
+                        <span class="text-4xl">📋</span>
+                        Joriy etish rejasi (1 oy)
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-6 bg-white p-6 rounded-2xl">
+                            <div class="font-mono text-4xl text-gray-300 font-bold">01</div>
+                            <div>
+                                <p class="font-semibold">1-hafta</p>
+                                <p class="text-gray-600">Direktor va o‘qituvchilar bilan uchrashuv</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 bg-white p-6 rounded-2xl">
+                            <div class="font-mono text-4xl text-gray-300 font-bold">02</div>
+                            <div>
+                                <p class="font-semibold">2-hafta</p>
+                                <p class="text-gray-600">O‘quvchilarga kirish parollari tarqatish</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 bg-white p-6 rounded-2xl">
+                            <div class="font-mono text-4xl text-gray-300 font-bold">03</div>
+                            <div>
+                                <p class="font-semibold">3-4-hafta</p>
+                                <p class="text-gray-600">Birinchi portfolio to‘ldirish + monitoring</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section id="benefits" class="py-24 bg-blue-600 text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold">Hamma uchun foyda</h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-10">
+                    <div class="text-7xl mb-6">🎯</div>
+                    <h3 class="text-2xl font-semibold mb-4">O‘quvchilar uchun</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span> O‘z-o‘zini
+                            baholash ko‘nikmasi</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span>
+                            Motivatsiya oshishi</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span>
+                            Universitet va ishga kirishda kuchli CV</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-10">
+                    <div class="text-7xl mb-6">👩‍🏫</div>
+                    <h3 class="text-2xl font-semibold mb-4">O‘qituvchilar uchun</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span> Individual
+                            yondashuv</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span> Vaqtni
+                            tejash (avto-hisobot)</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span>
+                            O‘quvchilarning real rivojlanishi</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-10">
+                    <div class="text-7xl mb-6">🏫</div>
+                    <h3 class="text-2xl font-semibold mb-4">Maktab uchun</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span> Raqamli
+                            transformatsiya</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span>
+                            O‘quvchilarning ota-onalar bilan aloqasi</li>
+                        <li class="flex items-start gap-3"><span class="text-green-300 mt-1 text-xl">✔</span> Xalqaro
+                            standartlarga moslik</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEMO -->
+    <section id="demo" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="bg-yellow-100 text-yellow-700 px-6 py-2 rounded-3xl text-sm font-semibold">INTERAKTIV
+                    DEMO</span>
+                <h2 class="text-5xl font-bold mt-4">O‘zingiz sinab ko‘ring!</h2>
+                <p class="text-gray-600 mt-3 max-w-md mx-auto">Sardor Abdullayev (9-sinf) portfolio misoli. O‘zingiz ham
+                    qo‘shing!</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-gray-100 rounded-3xl overflow-hidden shadow-2xl">
+                <!-- Demo header -->
+                <div class="bg-white p-6 flex items-center justify-between border-b">
+                    <div class="flex items-center gap-4">
+                        <img src="https://picsum.photos/id/64/80/80" class="w-14 h-14 rounded-2xl" alt="">
+                        <div>
+                            <p class="font-bold">Sardor Abdullayev</p>
+                            <p class="text-sm text-gray-500">9-A sinf • Toshkent shahri</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold text-blue-600">94%</div>
+                        <div class="text-xs text-gray-500">umumiy bajarilish</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b bg-white">
+                    <button onclick="showTab(0)" id="tab0"
+                        class="tab-button flex-1 py-5 font-medium border-b-4 border-blue-600 text-blue-600">Asosiy
+                        ma’lumot</button>
+                    <button onclick="showTab(1)" id="tab1"
+                        class="tab-button flex-1 py-5 font-medium text-gray-500">Loyihalarim</button>
+                    <button onclick="showTab(2)" id="tab2"
+                        class="tab-button flex-1 py-5 font-medium text-gray-500">Yutuqlar</button>
+                </div>
+
+                <!-- Tab content -->
+                <div id="content0" class="tab-content p-8 bg-white">
+                    <p class="text-gray-600 leading-relaxed">
+                        Salom! Men Sardorman. Matematika va ingliz tilini yaxshi ko‘raman.
+                        Bu yil maktabda “Yashil energiya” loyihasini boshqardim.
+                        Portfolio orqali barcha yutuqlarimni bir joyga jamladim.
+                    </p>
+                </div>
+
+                <div id="content1" class="tab-content hidden p-8 bg-white">
+                    <div class="grid grid-cols-2 gap-6" id="projects-list">
+                        <!-- JS orqali qo‘shiladi -->
+                    </div>
+                    <!-- Qo‘shish formasi -->
+                    <div class="mt-10 border-t pt-8">
+                        <h4 class="font-semibold mb-4">Yangi loyiha qo‘shish</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input id="proj-title" type="text" placeholder="Loyiha nomi"
+                                class="border rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500">
+                            <input id="proj-desc" type="text" placeholder="Qisqa tavsif"
+                                class="border rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500">
+                            <button onclick="addProject()"
+                                class="bg-blue-600 text-white rounded-2xl font-medium hover:bg-blue-700 transition">
+                                Qo‘shish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content2" class="tab-content hidden p-8 bg-white">
+                    <div class="flex flex-wrap gap-6">
+                        <div class="bg-yellow-100 px-6 py-4 rounded-3xl flex items-center gap-4">
+                            <span class="text-4xl">🥇</span>
+                            <div>
+                                <p class="font-medium">1-o‘rin • Shahar olimpiadasi</p>
+                                <p class="text-sm text-gray-600">Matematika, 2025</p>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-100 px-6 py-4 rounded-3xl flex items-center gap-4">
+                            <span class="text-4xl">🏅</span>
+                            <div>
+                                <p class="font-medium">IELTS 6.5</p>
+                                <p class="text-sm text-gray-600">2025-yil fevral</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-24 bg-gray-900 text-white">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-5xl font-bold mb-6">Tizimni maktabingizga joriy qilmoqchimisiz?</h2>
+            <p class="text-gray-400 text-xl mb-12">O‘qituvchi sifatida tizimdan foydalanish uchun pastdagi formani
+                to'ldiring. Ma’lumotlar tekshirilgach, login ma’lumotlari beriladi.
+            </p>
+
+            <form id="contactForm" onsubmit="handleSubmit(event)" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <input type="text" id="name" required placeholder="Ism va familiya"
+                        class="bg-gray-800 border border-gray-700 rounded-3xl px-8 py-6 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                    <input type="tel" id="phone" required placeholder="Telefon raqami"
+                        class="bg-gray-800 border border-gray-700 rounded-3xl px-8 py-6 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                </div>
+                <input type="email" id="email" required placeholder="Email"
+                    class="w-full bg-gray-800 border border-gray-700 rounded-3xl px-8 py-6 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                <textarea id="message" rows="5" placeholder="Maktabingiz raqami"
+                    class="w-full bg-gray-800 border border-gray-700 rounded-3xl px-8 py-6 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"></textarea>
+
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-500 py-7 rounded-3xl text-xl font-semibold transition">
+                    Yuborish
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex justify-center gap-8 text-2xl mb-8">
+                <i class="fab fa-telegram"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-youtube"></i>
+            </div>
+            <p class="text-sm">© 2026 Hasanxon uchun maxsus tayyorlangan veb-sayt namunasi.<br>
+                Barcha huquqlar himoyalangan. Kodni o‘zgartirib, o‘zingiz ishlatishingiz mumkin.</p>
+        </div>
+    </footer>
+<!-- ===== GLOBAL MODAL ===== -->
+<div id="globalModal"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+
+    <div id="modalBox"
+        class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 scale-95 opacity-0 transition-all duration-200">
+
+        <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+
+        <div id="modalMessage" class="text-gray-600 mb-6"></div>
+
+        <div class="flex justify-end gap-3">
+            <button id="modalCancel"
+                class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 hidden">
+                Bekor qilish
+            </button>
+
+            <button id="modalOk"
+                class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+    <script>
+        // ================= MODAL SYSTEM =================
+
+function showAlert(message, title = "Ma'lumot") {
+    return new Promise(resolve => {
+        openModal(title, message, false, resolve)
+    })
+}
+
+function showConfirm(message, title = "Tasdiqlash") {
+    return new Promise(resolve => {
+        openModal(title, message, true, resolve)
+    })
+}
+
+function openModal(title, message, isConfirm, callback) {
+
+    const modal = document.getElementById("globalModal")
+    const box = document.getElementById("modalBox")
+
+    document.getElementById("modalTitle").textContent = title
+    document.getElementById("modalMessage").innerHTML = message
+
+    const cancelBtn = document.getElementById("modalCancel")
+    cancelBtn.classList.toggle("hidden", !isConfirm)
+
+    modal.classList.remove("hidden")
+
+    setTimeout(() => {
+        box.classList.remove("scale-95", "opacity-0")
+        box.classList.add("scale-100", "opacity-100")
+    }, 10)
+
+    document.getElementById("modalOk").onclick = () => {
+        closeModal()
+        callback(true)
+    }
+
+    cancelBtn.onclick = () => {
+        closeModal()
+        callback(false)
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById("globalModal")
+    const box = document.getElementById("modalBox")
+
+    box.classList.add("scale-95", "opacity-0")
+    setTimeout(() => modal.classList.add("hidden"), 200)
+}
+
+        // Logo bosilganda hero ga smooth scroll
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobileMenu');
+            var btn = document.getElementById('mobileMenuBtn');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                var icon = btn.querySelector('i');
+                if (icon) icon.className = menu.classList.contains('hidden') ? 'fas fa-bars text-gray-600' : 'fas fa-times text-gray-600';
+            }
+        }
+        function closeMobileMenu() {
+            var menu = document.getElementById('mobileMenu');
+            var btn = document.getElementById('mobileMenuBtn');
+            if (menu) menu.classList.add('hidden');
+            if (btn) { var icon = btn.querySelector('i'); if (icon) icon.className = 'fas fa-bars text-gray-600'; }
+        }
+        // Tailwind script already loaded
+        function showTab(n) {
+            document.querySelectorAll('.tab-button').forEach((btn, i) => {
+                if (i === n) {
+                    btn.classList.add('border-b-4', 'border-blue-600', 'text-blue-600')
+                    btn.classList.remove('text-gray-500')
+                } else {
+                    btn.classList.remove('border-b-4', 'border-blue-600', 'text-blue-600')
+                    btn.classList.add('text-gray-500')
+                }
+            })
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('hidden', i !== n)
+            })
+        }
+
+        // Sample projects
+        let projects = [
+            {
+                title: "Yashil energiya loyihasi",
+                desc: "Quyosh panellari modeli + taqdimot"
+            }
+        ]
+
+        function renderProjects() {
+            const container = document.getElementById('projects-list')
+            container.innerHTML = ''
+            projects.forEach(p => {
+                const div = document.createElement('div')
+                div.className = "bg-white border border-gray-100 p-6 rounded-3xl"
+                div.innerHTML = `
+                    <h5 class="font-semibold">${p.title}</h5>
+                    <p class="text-gray-600 text-sm mt-2">${p.desc}</p>
+                `
+                container.appendChild(div)
+            })
+        }
+
+        function addProject() {
+            const title = document.getElementById('proj-title').value.trim()
+            const desc = document.getElementById('proj-desc').value.trim()
+            if (!title) return alert("Loyiha nomini kiriting!")
+
+            projects.push({ title, desc })
+            renderProjects()
+
+            // Clear inputs
+            document.getElementById('proj-title').value = ''
+            document.getElementById('proj-desc').value = ''
+        }
+
+        // Initialize
+        window.onload = function () {
+            renderProjects()
+            showTab(0) // default tab
+        }
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.getAttribute('href') !== '#') {
+                    e.preventDefault()
+                    const target = document.querySelector(this.getAttribute('href'))
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        })
+                    }
+                }
+            })
+        });
+    </script>
+    <script>
+        async function handleSubmit(e) {
+    e.preventDefault()
+
+    const name = document.getElementById("name").value
+    const phone = document.getElementById("phone").value
+    const email = document.getElementById("email").value
+    const message = document.getElementById("message").value
+
+    const text = `
+📩 Yangi murojaat:
+
+👤 Ism: ${name}
+📞 Telefon: ${phone}
+📧 Email/tgUser: ${email}
+🏫 Maktab: ${message}
+  `
+
+    const token = "8602519025:AAHUvDERWL2dzqQrXi-7rwsjfej8wix1LNk"
+    const chat_id = "5875765192"
+
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            chat_id: chat_id,
+            text: text,
+        }),
+    })
+
+    await showAlert(
+        "So'rovingiz qabul qilindi ✅ Administrator tez orada siz bilan bog'lanadi.",
+        "Muvaffaqiyat"
+    )
+
+    e.target.reset()
+}
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Elektron Portfolio — E-Portfolio Pro</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+ <script src="shared.js"></script>
+ <style>
+ @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+ .anim{animation:fadeInUp .4s ease both}
+ .anim-1{animation-delay:.05s}.anim-2{animation-delay:.1s}.anim-3{animation-delay:.15s}
+ .anim-4{animation-delay:.2s}.anim-5{animation-delay:.25s}
+ /* Toast */
+ #toast{transition:opacity .3s,transform .3s}
+ /* Template: modern */
+ body.tpl-modern #portfolioCard{background:linear-gradient(135deg,#f0f4ff 0%,#fff 60%)}
+ body.tpl-modern .section-header{color:#4f46e5;border-left:4px solid #4f46e5;padding-left:10px}
+ /* Template: minimal */
+ body.tpl-minimal #portfolioCard{border:1px solid #e5e7eb}
+ body.tpl-minimal .section-header{font-weight:500;letter-spacing:.05em;text-transform:uppercase;font-size:.85rem;color:#6b7280}
+ </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- TOAST -->
+<div id="toast" class="fixed top-4 right-4 z-50 bg-green-600 text-white px-5 py-3 rounded-2xl shadow-xl opacity-0 translate-y-2 pointer-events-none text-sm font-medium flex items-center gap-2">
+ <i class="fas fa-check-circle"></i><span id="toastMsg">Havola nusxalandi!</span>
+</div>
+
+<!-- HEADER -->
+<header class="bg-white shadow-sm sticky top-0 z-30">
+ <div class="max-w-3xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
+ <button onclick="goBackToStudent()" class="flex items-center justify-center w-9 h-9 text-gray-600 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+ <i class="fas fa-arrow-left"></i>
+ </button>
+ <div class="flex items-center gap-1.5 text-indigo-600 font-bold text-base flex-shrink-0">
+ <i class="fas fa-folder-open text-sm"></i>
+ <span class="hidden xs:inline">E-Portfolio</span>
+ </div>
+ <div class="flex items-center gap-1.5 flex-shrink-0">
+ <button id="shareBtn" onclick="handleShare()" class="flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all">
+ <i class="fas fa-share-alt text-xs"></i>
+ <span class="hidden sm:inline">Ulashish</span>
+ </button>
+ <button onclick="downloadJPG()" class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all">
+ <i class="fas fa-image text-xs"></i>
+ <span class="hidden sm:inline">JPG</span>
+ </button>
+ <button onclick="downloadPDF()" class="flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 active:scale-95 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all">
+ <i class="fas fa-file-pdf text-xs"></i>
+ <span class="hidden sm:inline">PDF</span>
+ </button>
+ </div>
+ </div>
+</header>
+
+<!-- MAIN -->
+<main class="max-w-3xl mx-auto p-4 md:p-6">
+
+ <!-- NOT FOUND -->
+ <div id="notFound" class="hidden text-center py-24">
+ <div class="text-6xl mb-4">🔍</div>
+ <h2 class="text-2xl font-bold text-gray-700 mb-2">Portfolio topilmadi</h2>
+ <p class="text-gray-500">Bu ID ga tegishli portfolio mavjud emas.</p>
+ <a href="index.html" class="mt-6 inline-block bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">Bosh sahifaga qaytish</a>
+ </div>
+
+ <!-- PORTFOLIO CARD -->
+ <div id="portfolioCard" class="bg-white rounded-3xl shadow-xl p-6 md:p-10 hidden">
+
+ <!-- PROFILE HEADER -->
+ <div id="profileHeader" class="anim flex items-center gap-5 mb-8 pb-6 border-b border-gray-100"></div>
+
+ <!-- SECTIONS -->
+ <div id="skillsSection" class="anim anim-1 hidden mb-6"></div>
+ <div id="languagesSection" class="anim hidden mb-6"></div>
+ <div id="certsSection" class="anim anim-2 hidden mb-6"></div>
+ <div id="gradesSection" class="anim anim-3 hidden mb-6"></div>
+ <div id="achievementsSection" class="anim anim-4 hidden mb-6"></div>
+ <div id="activitiesSection" class="anim anim-5 hidden mb-6"></div>
+ <div id="experiencesSection" class="anim hidden mb-6"></div>
+ <div id="educationsSection" class="anim hidden mb-6"></div>
+ <div id="goalsSection" class="anim hidden mb-6"></div>
+ <div id="statementSection" class="anim hidden mb-6"></div>
+
+ <!-- FOOTER: QR + Doc ID -->
+ <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-end flex-wrap gap-4">
+ <div class="text-xs text-gray-500 space-y-1">
+ <p>Hujjat ID: <span id="docId" class="font-semibold text-gray-700"></span></p>
+ <p>Tasdiqlash kodi: <span id="docCode" class="font-semibold text-gray-700"></span></p>
+ <p class="text-gray-400 mt-2">Rasmiy akademik hujjat</p>
+ </div>
+ <div id="qrContainer" class="bg-white p-2 rounded-xl border border-gray-200"></div>
+ </div>
+ </div>
+
+</main>
+
+<script>
+// ===== UTILS =====
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function getStudentIdFromURL(){
+ return new URLSearchParams(window.location.search).get('id');
+}
+
+function generateShareLink(studentId){
+ return window.location.origin + '/public.html?id=' + encodeURIComponent(studentId);
+}
+
+function copyToClipboard(text){
+ if(navigator.clipboard && navigator.clipboard.writeText){
+ navigator.clipboard.writeText(text).then(showToast).catch(()=>showToast());
+ } else {
+ showToast();
+ }
+}
+
+function showToast(msg){
+ var t = document.getElementById('toast');
+ document.getElementById('toastMsg').textContent = msg || 'Havola nusxalandi!';
+ t.style.opacity='1'; t.style.transform='translateY(0)';
+ setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 3000);
+}
+
+function handleShare(){
+ var id = getStudentIdFromURL();
+ if(id) copyToClipboard(generateShareLink(id));
+}
+
+// ===== GO BACK TO STUDENT =====
+function goBackToStudent() {
+ // Student.html ga qaytish
+ window.location.href = 'student.html';
+}
+
+function renderQRCode(url, containerId, size){
+ var el = document.getElementById(containerId);
+ if(!el) return;
+ el.innerHTML = '';
+ new QRCode(el, { text: url, width: size||150, height: size||150 });
+}
+
+// ===== SECTION HELPERS =====
+function sectionTitle(icon, title){
+ return '<h3 class="section-header text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">' + icon + ' ' + esc(title) + '</h3>';
+}
+
+function show(id){ var el=document.getElementById(id); if(el) el.classList.remove('hidden'); }
+
+// ===== RENDER PORTFOLIO =====
+function renderPortfolio(data, studentId){
+ var tpl = data.selectedTemplate || 'classic';
+ document.body.classList.remove('tpl-classic','tpl-modern','tpl-minimal');
+ document.body.classList.add('tpl-' + tpl);
+
+ // Profile header
+ var photoHtml = data.photoBase64
+ ? '<img src="'+data.photoBase64+'" class="w-20 h-20 rounded-full object-cover border-4 border-indigo-200 flex-shrink-0">'
+ : '<div class="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-user text-3xl text-indigo-400"></i></div>';
+
+ document.getElementById('profileHeader').innerHTML =
+ photoHtml +
+ '<div class="flex-1">' +
+ '<h1 class="text-2xl md:text-3xl font-bold text-gray-800">' + esc(data.fullName||'—') + '</h1>' +
+ '<p class="text-indigo-600 font-medium mt-1">' + esc(data.major||'') + '</p>' +
+ '<div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-sm text-gray-600">' +
+ (data.school ? '<span><i class="fas fa-school mr-1"></i>' + esc(data.school) + '</span>' : '') +
+ (data.region ? '<span><i class="fas fa-map-marker-alt mr-1"></i>' + esc(data.region) + '</span>' : '') +
+ (data.gpa && data.gpa !== '0.00' ? '<span class="font-semibold text-green-600"><i class="fas fa-star mr-1"></i>GPA: ' + esc(data.gpa) + '</span>' : '') +
+ '</div>' +
+ '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">' +
+ (data.email ? '<span><i class="fas fa-envelope mr-1"></i>' + esc(data.email) + '</span>' : '') +
+ (data.phoneNumber ? '<span><i class="fas fa-phone mr-1"></i>' + esc(data.phoneNumber) + '</span>' : '') +
+ '</div>' +
+ '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">' +
+ (data.linkedin ? '<a href="' + esc(data.linkedin) + '" target="_blank" class="text-blue-600 hover:underline"><i class="fab fa-linkedin mr-1"></i>LinkedIn</a>' : '') +
+ (data.github ? '<a href="' + esc(data.github) + '" target="_blank" class="text-gray-700 hover:underline"><i class="fab fa-github mr-1"></i>GitHub</a>' : '') +
+ (data.portfolio ? '<a href="' + esc(data.portfolio) + '" target="_blank" class="text-indigo-600 hover:underline"><i class="fas fa-globe mr-1"></i>Portfolio</a>' : '') +
+ '</div>' +
+ '</div>';
+
+ // Skills
+ if(data.skills && data.skills.length > 0){
+ var skillsHtml = sectionTitle('<i class="fas fa-chart-bar text-purple-500"></i>', "Ko'nikmalar");
+ skillsHtml += '<div class="space-y-2">';
+ data.skills.forEach(function(s){
+ var color = s.level>=80?'bg-green-500':s.level>=50?'bg-indigo-500':'bg-yellow-500';
+ skillsHtml += '<div class="flex items-center gap-3">' +
+ '<span class="text-sm text-gray-700 w-28 flex-shrink-0">' + esc(s.name) + '</span>' +
+ '<div class="flex-1 bg-gray-200 rounded-full h-2.5"><div class="'+color+' h-2.5 rounded-full" style="width:'+s.level+'%"></div></div>' +
+ '<span class="text-xs text-gray-500 w-8 text-right">'+s.level+'%</span>' +
+ '</div>';
+ });
+ skillsHtml += '</div>';
+ document.getElementById('skillsSection').innerHTML = skillsHtml;
+ show('skillsSection');
+ }
+
+ // Languages
+ if(data.languages && data.languages.length > 0){
+ var langHtml = sectionTitle('<i class="fas fa-language text-cyan-500"></i>', "Tillar");
+ langHtml += '<div class="grid grid-cols-2 gap-3">';
+ data.languages.forEach(function(lang){
+ var levelColors = {
+ 'Beginner': 'bg-red-100 text-red-700',
+ 'Elementary': 'bg-orange-100 text-orange-700',
+ 'Intermediate': 'bg-yellow-100 text-yellow-700',
+ 'Upper-Intermediate': 'bg-lime-100 text-lime-700',
+ 'Advanced': 'bg-green-100 text-green-700',
+ 'Fluent': 'bg-blue-100 text-blue-700',
+ 'Native': 'bg-purple-100 text-purple-700'
+ };
+ var colorClass = levelColors[lang.level] || 'bg-gray-100 text-gray-700';
+ langHtml += '<div class="bg-gray-50 p-3 rounded-xl">' +
+ '<div class="font-medium text-gray-800 text-sm mb-1">' + esc(lang.name) + '</div>' +
+ '<span class="text-xs px-2 py-0.5 rounded-full ' + colorClass + '">' + esc(lang.level) + '</span>' +
+ '</div>';
+ });
+ langHtml += '</div>';
+ document.getElementById('languagesSection').innerHTML = langHtml;
+ show('languagesSection');
+ }
+
+ // Certificates
+ if(data.certificates && data.certificates.length > 0){
+ var certsHtml = sectionTitle('<i class="fas fa-certificate text-green-500"></i>', "Sertifikatlar");
+ certsHtml += '<div class="space-y-3">';
+ data.certificates.forEach(function(c){
+ certsHtml += '<div class="bg-gray-50 p-4 rounded-xl">' +
+ '<div class="font-semibold text-gray-800">' + esc(c.name) + '</div>' +
+ (c.type ? '<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mt-1 inline-block">' + esc(c.type) + '</span>' : '') +
+ (c.date ? '<div class="text-xs text-gray-500 mt-1">📅 ' + esc(c.date) + '</div>' : '') +
+ (c.expiry ? '<div class="text-xs text-gray-500">⏳ Amal qiladi: ' + esc(c.expiry) + '</div>' : '') +
+ (c.org ? '<div class="text-xs text-gray-500">🏢 ' + esc(c.org) + '</div>' : '') +
+ '</div>';
+ });
+ certsHtml += '</div>';
+ document.getElementById('certsSection').innerHTML = certsHtml;
+ show('certsSection');
+ }
+
+ // Grades
+ if(data.grades && data.grades.length > 0){
+ var gradesHtml = sectionTitle('<i class="fas fa-book text-indigo-500"></i>', "Akademik natijalar");
+ gradesHtml += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
+ data.grades.forEach(function(g){
+ gradesHtml += '<div class="bg-indigo-50 p-4 rounded-xl">' +
+ '<div class="font-semibold text-gray-800">' + esc(g.name) + '</div>' +
+ '<div class="flex gap-2 mt-1 text-xs">' +
+ '<span class="bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded-full">Baho: ' + esc(g.grade) + '</span>' +
+ (g.year ? '<span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">📅 ' + esc(g.year) + '</span>' : '') +
+ '</div>' +
+ '</div>';
+ });
+ gradesHtml += '</div>';
+ document.getElementById('gradesSection').innerHTML = gradesHtml;
+ show('gradesSection');
+ }
+
+ // Achievements
+ if(data.achievements && data.achievements.length > 0){
+ var achHtml = sectionTitle('<i class="fas fa-trophy text-yellow-500"></i>', "Yutuqlar");
+ achHtml += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
+ data.achievements.forEach(function(a){
+ achHtml += '<div class="bg-yellow-50 p-4 rounded-xl">' +
+ '<div class="font-semibold text-gray-800">' + esc(a.title) + '</div>' +
+ '<div class="flex gap-2 mt-1 flex-wrap text-xs">' +
+ (a.level ? '<span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">🎯 ' + esc(a.level) + '</span>' : '') +
+ (a.place ? '<span class="bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">🏅 ' + esc(a.place) + '</span>' : '') +
+ '</div>' +
+ '</div>';
+ });
+ achHtml += '</div>';
+ document.getElementById('achievementsSection').innerHTML = achHtml;
+ show('achievementsSection');
+ }
+
+ // Activities
+ if(data.activities && data.activities.length > 0){
+ var actHtml = sectionTitle('<i class="fas fa-star text-pink-500"></i>', "Qo'shimcha faoliyat");
+ actHtml += '<div class="space-y-2">';
+ data.activities.forEach(function(a){
+ actHtml += '<div class="bg-pink-50 p-3 rounded-xl">' +
+ '<div class="font-semibold text-gray-800 text-sm">' + esc(a.title||a.name||'') + '</div>' +
+ '<div class="text-xs text-gray-600">' + esc(a.desc||a.description||'') + '</div>' +
+ '</div>';
+ });
+ actHtml += '</div>';
+ document.getElementById('activitiesSection').innerHTML = actHtml;
+ show('activitiesSection');
+ }
+
+ // Work Experience
+ if(data.experiences && data.experiences.length > 0){
+ var expHtml = sectionTitle('<i class="fas fa-briefcase text-blue-500"></i>', "Ish tajribasi");
+ expHtml += '<div class="space-y-3">';
+ data.experiences.forEach(function(exp){
+ expHtml += '<div class="bg-blue-50 p-4 rounded-xl">' +
+ '<div class="font-semibold text-gray-800">' + esc(exp.company) + '</div>' +
+ '<div class="text-sm text-blue-600">' + esc(exp.position) + '</div>' +
+ '<div class="text-xs text-gray-500 mt-1">' +
+ (exp.startDate ? esc(exp.startDate) : '') +
+ (exp.endDate ? ' - ' + esc(exp.endDate) : ' - Hozir') +
+ '</div>' +
+ (exp.description ? '<div class="text-sm text-gray-600 mt-2">' + esc(exp.description) + '</div>' : '') +
+ '</div>';
+ });
+ expHtml += '</div>';
+ document.getElementById('experiencesSection').innerHTML = expHtml;
+ show('experiencesSection');
+ }
+
+ // Education History
+ if(data.educations && data.educations.length > 0){
+ var eduHtml = sectionTitle('<i class="fas fa-graduation-cap text-teal-500"></i>', "Ta'lim tarixi");
+ eduHtml += '<div class="space-y-3">';
+ data.educations.forEach(function(edu){
+ eduHtml += '<div class="bg-teal-50 p-4 rounded-xl">' +
+ '<div class="font-semibold text-gray-800">' + esc(edu.institution) + '</div>' +
+ '<div class="text-sm text-teal-600">' + esc(edu.degree) + '</div>' +
+ '<div class="text-xs text-gray-500 mt-1">' +
+ (edu.startYear ? esc(edu.startYear) : '') +
+ (edu.endYear ? ' - ' + esc(edu.endYear) : ' - Hozir') +
+ '</div>' +
+ (edu.field ? '<div class="text-sm text-gray-600 mt-2">' + esc(edu.field) + '</div>' : '') +
+ '</div>';
+ });
+ eduHtml += '</div>';
+ document.getElementById('educationsSection').innerHTML = eduHtml;
+ show('educationsSection');
+ }
+
+ // Goals
+ if(data.goals && data.goals.length > 0){
+ var goalsHtml = sectionTitle('<i class="fas fa-bullseye text-orange-500"></i>', "Maqsadlar");
+ goalsHtml += '<div class="space-y-2">';
+ data.goals.forEach(function(g){
+ var done = g.status === 'Bajarilgan';
+ goalsHtml += '<div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">' +
+ '<div>' +
+ '<div class="text-sm font-medium text-gray-800 ' + (done?'line-through opacity-60':'') + '">' + esc(g.title) + '</div>' +
+ (g.targetDate ? '<div class="text-xs text-gray-500">📅 ' + esc(g.targetDate) + '</div>' : '') +
+ '</div>' +
+ '<span class="text-xs px-2 py-0.5 rounded-full ' + (done?'bg-green-100 text-green-700':'bg-gray-200 text-gray-600') + '">' + esc(g.status) + '</span>' +
+ '</div>';
+ });
+ goalsHtml += '</div>';
+ document.getElementById('goalsSection').innerHTML = goalsHtml;
+ show('goalsSection');
+ }
+
+ // Personal Statement
+ if(data.personalStatement && data.personalStatement.trim()){
+ var stHtml = sectionTitle('<i class="fas fa-pen text-teal-500"></i>', "Shaxsiy bayonot");
+ stHtml += '<p class="text-gray-700 leading-relaxed text-sm">' + esc(data.personalStatement) + '</p>';
+ document.getElementById('statementSection').innerHTML = stHtml;
+ show('statementSection');
+ }
+
+ // Doc ID + QR
+ var now = new Date();
+ var dateStr = now.toISOString().slice(0,10).replace(/-/g,'');
+ var docId = 'PORT-' + studentId + '-' + dateStr;
+ var docCode = Math.random().toString(36).substring(2,10).toUpperCase();
+ document.getElementById('docId').textContent = docId;
+ document.getElementById('docCode').textContent = docCode;
+
+ var shareUrl = generateShareLink(studentId);
+ renderQRCode(shareUrl, 'qrContainer', 150);
+
+ show('portfolioCard');
+}
+
+// ===== PDF DOWNLOAD =====
+async function downloadPDF(){
+ var el = document.getElementById('portfolioCard');
+ if(!el) return;
+ var canvas = await html2canvas(el, { scale:2, useCORS:true });
+ var imgData = canvas.toDataURL('image/png');
+ var { jsPDF } = window.jspdf;
+ var pdf = new jsPDF('p','mm','a4');
+ var pw=210, ph=297;
+ pdf.setDrawColor(0); pdf.setLineWidth(0.8); pdf.rect(5,5,pw-10,ph-10);
+ pdf.setDrawColor(180); pdf.setLineWidth(0.3); pdf.rect(10,10,pw-20,ph-20);
+ pdf.setFont('helvetica','bold'); pdf.setFontSize(16);
+ pdf.text("O'QUVCHI PORTFOLIOSI", pw/2, 18, {align:'center'});
+ pdf.setFontSize(9); pdf.setFont('helvetica','normal');
+ pdf.text('Sana: '+new Date().toLocaleDateString('uz-UZ'), pw-50, 18);
+ pdf.setDrawColor(150); pdf.setLineWidth(0.3); pdf.line(15,22,pw-15,22);
+ var mt=28, mb=20, mw=pw-30, mh=ph-mt-mb;
+ var iw=canvas.width, ih=canvas.height;
+ var sc=Math.min(mw/iw, mh/ih);
+ var fw=iw*sc, fh=ih*sc, cx=(pw-fw)/2;
+ pdf.addImage(imgData,'PNG',cx,mt,fw,fh);
+ pdf.setDrawColor(150); pdf.line(15,ph-20,pw-15,ph-20);
+ pdf.setFontSize(9);
+ pdf.text("O'quvchi ID: "+getStudentIdFromURL(), 15, ph-12);
+ pdf.text("Rasmiy akademik hujjat", pw-60, ph-12);
+ pdf.save("Portfolio_"+getStudentIdFromURL()+".pdf");
+}
+
+// ===== JPG DOWNLOAD (Professional Resume Style) =====
+async function downloadJPG(){
+ showToast('Professional resume tayyorlanmoqda...');
+ 
+ var studentId = getStudentIdFromURL();
+ var portfolios = safeGetItem('portfolios', {});
+ var data = portfolios[studentId];
+ 
+ if (!data) {
+   showToast('Ma\'lumotlar topilmadi!');
+   return;
+ }
+ 
+ // Professional resume HTML yaratish
+ var resumeHTML = createProfessionalResume(data);
+ 
+ // Vaqtinchalik div yaratish
+ var tempDiv = document.createElement('div');
+ tempDiv.style.position = 'fixed';
+ tempDiv.style.left = '-9999px';
+ tempDiv.style.top = '0';
+ tempDiv.style.width = '800px';
+ tempDiv.style.background = '#ffffff';
+ tempDiv.style.padding = '40px';
+ tempDiv.style.fontFamily = 'Arial, sans-serif';
+ tempDiv.innerHTML = resumeHTML;
+ document.body.appendChild(tempDiv);
+ 
+ try {
+   // Yuqori sifatli canvas yaratish
+   var canvas = await html2canvas(tempDiv, { 
+     scale: 2,
+     useCORS: true,
+     backgroundColor: '#ffffff',
+     logging: false
+   });
+   
+   // JPG ga aylantirish
+   var imgData = canvas.toDataURL('image/jpeg', 0.95);
+   
+   // Yuklab olish
+   var link = document.createElement('a');
+   link.download = 'Resume_' + (data.fullName || studentId).replace(/\s+/g, '_') + '.jpg';
+   link.href = imgData;
+   link.click();
+   
+   showToast('Resume muvaffaqiyatli yuklandi!');
+ } catch(e) {
+   showToast('Xatolik yuz berdi!');
+   console.error(e);
+ }
+ 
+ // Vaqtinchalik div ni o'chirish
+ document.body.removeChild(tempDiv);
+}
+
+// ===== CREATE PROFESSIONAL RESUME =====
+function createProfessionalResume(data) {
+ var html = '<div style="color: #000; line-height: 1.6;">';
+ 
+ // Header
+ html += '<div style="margin-bottom: 20px;">';
+ html += '<h1 style="font-size: 32px; font-weight: bold; margin: 0 0 5px 0; color: #000;">' + esc(data.fullName || '') + '</h1>';
+ html += '<div style="font-size: 18px; color: #555; margin-bottom: 10px;">' + esc(data.major || 'Student') + '</div>';
+ 
+ // Contact info
+ html += '<div style="font-size: 13px; color: #666; line-height: 1.8;">';
+ if (data.region || data.school) html += '<div>' + esc(data.region || '') + (data.region && data.school ? ', ' : '') + esc(data.school || '') + '</div>';
+ if (data.phoneNumber) html += '<div>📞 ' + esc(data.phoneNumber) + '</div>';
+ if (data.email) html += '<div>✉ ' + esc(data.email) + '</div>';
+ 
+ var links = [];
+ if (data.linkedin) links.push('🔗 LinkedIn');
+ if (data.github) links.push('💻 Github');
+ if (data.portfolio) links.push('🌐 Website');
+ if (links.length > 0) html += '<div>' + links.join(' • ') + '</div>';
+ html += '</div></div>';
+ 
+ // Personal Statement
+ if (data.personalStatement && data.personalStatement.trim()) {
+   html += '<div style="margin-bottom: 20px; font-size: 13px; color: #444; font-style: italic; border-left: 3px solid #ddd; padding-left: 15px;">';
+   html += esc(data.personalStatement);
+   html += '</div>';
+ }
+ 
+ // Experience
+ if (data.experiences && data.experiences.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">ISH TAJRIBASI</h2>';
+   data.experiences.forEach(function(exp) {
+     html += '<div style="margin-bottom: 12px;">';
+     html += '<div style="display: flex; justify-content: space-between; margin-bottom: 3px;">';
+     html += '<strong style="font-size: 14px;">' + esc(exp.company) + '</strong>';
+     html += '<span style="font-size: 12px; color: #666;">' + esc(exp.startDate || '') + (exp.endDate ? ' - ' + esc(exp.endDate) : ' - Hozir') + '</span>';
+     html += '</div>';
+     html += '<div style="font-size: 13px; color: #555; margin-bottom: 3px;">' + esc(exp.position) + '</div>';
+     if (exp.description) html += '<div style="font-size: 12px; color: #666;">' + esc(exp.description) + '</div>';
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Education
+ if (data.educations && data.educations.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">TA\'LIM</h2>';
+   data.educations.forEach(function(edu) {
+     html += '<div style="margin-bottom: 12px;">';
+     html += '<div style="display: flex; justify-content: space-between; margin-bottom: 3px;">';
+     html += '<strong style="font-size: 14px;">' + esc(edu.institution) + '</strong>';
+     html += '<span style="font-size: 12px; color: #666;">' + esc(edu.startYear || '') + (edu.endYear ? ' - ' + esc(edu.endYear) : ' - Hozir') + '</span>';
+     html += '</div>';
+     html += '<div style="font-size: 13px; color: #555;">' + esc(edu.degree) + '</div>';
+     if (edu.field) html += '<div style="font-size: 12px; color: #666;">' + esc(edu.field) + '</div>';
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Skills
+ if (data.skills && data.skills.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">KO\'NIKMALAR</h2>';
+   var skillNames = data.skills.map(function(s) { return esc(s.name); }).join(', ');
+   html += '<div style="font-size: 13px; color: #444;">' + skillNames + '</div>';
+   html += '</div>';
+ }
+ 
+ // Languages
+ if (data.languages && data.languages.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">TILLAR</h2>';
+   data.languages.forEach(function(lang) {
+     html += '<div style="margin-bottom: 5px; font-size: 13px;">';
+     html += '• <strong>' + esc(lang.name) + '</strong> - ' + esc(lang.level);
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Certificates
+ if (data.certificates && data.certificates.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">SERTIFIKATLAR</h2>';
+   data.certificates.forEach(function(cert) {
+     html += '<div style="margin-bottom: 8px; font-size: 13px;">';
+     html += '<strong>' + esc(cert.name) + '</strong>';
+     if (cert.org) html += ' - ' + esc(cert.org);
+     if (cert.date) html += ' <span style="color: #666;">(' + esc(cert.date) + ')</span>';
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Achievements
+ if (data.achievements && data.achievements.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">YUTUQLAR</h2>';
+   data.achievements.forEach(function(ach) {
+     html += '<div style="margin-bottom: 8px; font-size: 13px;">';
+     html += '<strong>' + esc(ach.title) + '</strong>';
+     if (ach.level || ach.place) html += ' - ' + esc(ach.level || '') + (ach.level && ach.place ? ', ' : '') + esc(ach.place || '');
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Grades (Academic Results)
+ if (data.grades && data.grades.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">AKADEMIK NATIJALAR</h2>';
+   data.grades.forEach(function(grade) {
+     html += '<div style="margin-bottom: 5px; font-size: 13px;">';
+     html += '<strong>' + esc(grade.name) + '</strong>: ' + esc(grade.grade);
+     if (grade.year) html += ' <span style="color: #666;">(' + esc(grade.year) + ')</span>';
+     html += '</div>';
+   });
+   if (data.gpa && data.gpa !== '0.00') {
+     html += '<div style="margin-top: 10px; font-size: 13px; font-weight: bold;">GPA: ' + esc(data.gpa) + '</div>';
+   }
+   html += '</div>';
+ }
+ 
+ // Activities
+ if (data.activities && data.activities.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">QO\'SHIMCHA FAOLIYATLAR</h2>';
+   data.activities.forEach(function(act) {
+     html += '<div style="margin-bottom: 8px; font-size: 13px;">';
+     html += '<strong>' + esc(act.title || act.name || '') + '</strong>';
+     if (act.desc || act.description) html += ' - ' + esc(act.desc || act.description || '');
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ // Goals
+ if (data.goals && data.goals.length > 0) {
+   html += '<div style="margin-bottom: 20px;">';
+   html += '<h2 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0; color: #000; border-bottom: 2px solid #000; padding-bottom: 5px;">MAQSADLAR</h2>';
+   data.goals.forEach(function(goal) {
+     html += '<div style="margin-bottom: 5px; font-size: 13px;">';
+     html += '• <strong>' + esc(goal.title) + '</strong>';
+     if (goal.targetDate) html += ' <span style="color: #666;">(' + esc(goal.targetDate) + ')</span>';
+     if (goal.status) html += ' - <em>' + esc(goal.status) + '</em>';
+     html += '</div>';
+   });
+   html += '</div>';
+ }
+ 
+ html += '</div>';
+ return html;
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function(){
+ var studentId = getStudentIdFromURL();
+ console.log('Public.html loaded with ID:', studentId);
+ if(!studentId){
+ console.log('No student ID found in URL');
+ document.getElementById('notFound').classList.remove('hidden');
+ return;
+ }
+ var portfolios = safeGetItem('portfolios', {});
+ console.log('Portfolios from localStorage:', portfolios);
+ var data = portfolios[studentId];
+ console.log('Student data:', data);
+ if(!data){
+ document.getElementById('notFound').classList.remove('hidden');
+ return;
+ }
+ renderPortfolio(data, studentId);
+});
+</script>
+</body>
+</html>

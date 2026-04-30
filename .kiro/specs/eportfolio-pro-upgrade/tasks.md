@@ -1,0 +1,341 @@
+# Implementation Plan: E-Portfolio Pro Upgrade
+
+## Overview
+
+Mavjud 5 ta vanilla HTML/CSS/JS faylni (index.html, auth.html, teacher.html, student.html, portfolio-editor.html) professional darajaga ko'tarish. Barcha mantiq brauzerda ishlaydi, ma'lumotlar localStorage da saqlanadi. Yangi fayllar: `shared.js` va `public.html`. CDN kutubxonalar: Chart.js, QRCode.js, html2canvas, jsPDF, Tailwind CSS, Font Awesome, fast-check.
+
+## Tasks
+
+- [x] 1. shared.js — Umumiy modul va localStorage yordamchilari
+  - [x] 1.1 `shared.js` faylini yarating va `safeGetItem` / `safeSetItem` funksiyalarini implement qiling
+    - `safeGetItem(key, defaultValue)`: try/catch bilan JSON.parse, null yoki xato bo'lsa defaultValue qaytaradi
+    - `safeSetItem(key, value)`: try/catch bilan JSON.stringify, QuotaExceededError ni ushlab oladi, `true`/`false` qaytaradi
+    - _Requirements: 10.4, 10.5_
+  - [ ]* 1.2 `safeGetItem` uchun property test yozing
+    - **Property 24: localStorage Read with Missing Fields Returns Defaults**
+    - **Validates: Requirements 10.4**
+    - fast-check CDN orqali: `fc.assert(fc.property(fc.string(), fc.anything(), (key, def) => safeGetItem(key, def) !== undefined), { numRuns: 100 })`
+  - [x] 1.3 `shared.js` ga dark mode funksiyalarini qo'shing: `initDarkMode()`, `toggleDarkMode()`
+    - `ep_dark_mode` localStorage kalitini o'qib `<html>` ga `dark` class qo'shadi/olib tashlaydi
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [ ]* 1.4 Dark mode persistence uchun property test yozing
+    - **Property 9: Dark Mode Preference Persistence**
+    - **Validates: Requirements 4.3**
+  - [x] 1.5 `shared.js` ga session funksiyalarini qo'shing: `checkSession(role)`, `refreshSession()`, `logout()`
+    - `isSessionExpired(role, sessionStart)`: teacher uchun 30 daqiqa, student uchun 8 soat
+    - Teacher uchun inaktivlik timer: `mousemove`, `keydown`, `click` eventlari
+    - _Requirements: 5.3, 5.4, 5.9_
+  - [ ]* 1.6 Session expiry uchun property test yozing
+    - **Property 11: Session Expiry (Teacher and Student)**
+    - **Validates: Requirements 5.3, 5.9**
+    - `fc.assert(fc.property(fc.integer({ min: 0, max: 1e9 }), fc.constantFrom('teacher', 'student'), (elapsed, role) => { ... }), { numRuns: 100 })`
+  - [x] 1.7 `shared.js` ga notification yordamchilarini qo'shing: `getNotificationCount()`, `getDismissedNotifications()`, `dismissNotification(id)`
+    - `ep_dismissed_notifications` kaliti ostida JSON array saqlanadi
+    - _Requirements: 8.7_
+  - [ ]* 1.8 Dismissed notifications persistence uchun property test yozing
+    - **Property 21: Dismissed Notifications Persistence**
+    - **Validates: Requirements 8.7**
+  - [x] 1.9 `shared.js` ga modal funksiyalarini ko'chiring: `showAlert()`, `showConfirm()`
+    - Barcha HTML fayllardan inline modal kodini olib, `shared.js` ga ko'chiring
+    - Har bir HTML faylga `<script src="shared.js"></script>` qo'shing
+    - _Requirements: 4.8_
+
+- [ ] 2. Checkpoint — shared.js to'g'ri ishlashini tekshiring
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 3. CSV Parser (`shared.js` ga qo'shish)
+  - [x] 3.1 `parseCSV(csvString)` funksiyasini implement qiling
+    - Header qatorini ajratadi, har bir qator uchun object yaratadi
+    - Ustun soni mos kelmasa `malformedRows` ga qo'shadi
+    - Qaytaradi: `{ headers, rows, malformedRows }`
+    - _Requirements: 10.1, 10.3_
+  - [x] 3.2 `serializeToCSV(rows, headers)` funksiyasini implement qiling
+    - Rows massivini CSV string ga aylantiradi
+    - _Requirements: 10.2_
+  - [x] 3.3 `validateCSVHeaders(headers, required)` va `validateCSVRow(row, headers)` funksiyalarini implement qiling
+    - _Requirements: 7.2, 7.6_
+  - [ ]* 3.4 CSV round-trip uchun property test yozing
+    - **Property 16: CSV Parse Round-Trip**
+    - **Validates: Requirements 7.2, 10.1, 10.2**
+    - `fc.assert(fc.property(fc.array(fc.record({...})), rows => deepEqual(parseCSV(serializeToCSV(rows, headers)).rows, rows)), { numRuns: 100 })`
+  - [ ]* 3.5 CSV malformed row skipping uchun property test yozing
+    - **Property 17: CSV Malformed Row Skipping**
+    - **Validates: Requirements 10.3**
+
+- [x] 4. Security & Auth Upgrade (`auth.html`)
+  - [x] 4.1 `validatePIN(pin)` funksiyasini `shared.js` ga implement qiling
+    - Faqat raqamlar, uzunlik 4–6 bo'lsa `true` qaytaradi
+    - _Requirements: 5.1, 5.8_
+  - [ ]* 4.2 PIN validation uchun property test yozing
+    - **Property 10: PIN Validation**
+    - **Validates: Requirements 5.1, 5.8**
+    - `fc.assert(fc.property(fc.string(), s => validatePIN(s) === (/^\d{4,6}$/.test(s))), { numRuns: 100 })`
+  - [x] 4.3 `auth.html` ga Teacher PIN setup qo'shing
+    - Yangi Teacher birinchi kirishda PIN o'rnatish formasini ko'rsating
+    - PIN `users[id].pin` ostida localStorage da saqlanadi
+    - _Requirements: 5.1_
+  - [x] 4.4 `auth.html` da Teacher login uchun PIN tekshiruvini qo'shing
+    - Parol to'g'ri bo'lgandan keyin PIN kiritish maydoni paydo bo'ladi
+    - _Requirements: 5.2_
+  - [x] 4.5 `auth.html` ga `ep_session_start` timestamp ni login vaqtida saqlashni qo'shing
+    - `localStorage.setItem('ep_session_start', new Date().toISOString())`
+    - _Requirements: 5.3_
+  - [x] 4.6 `changePassword(userId, currentPass, newPass)` va `changePIN(userId, currentPIN, newPIN)` funksiyalarini `shared.js` ga implement qiling
+    - Joriy parol/PIN noto'g'ri bo'lsa xato qaytaradi
+    - Yangi parol kamida 6 belgi bo'lishi kerak
+    - _Requirements: 5.5, 5.6, 5.7, 5.8_
+
+- [x] 5. Teacher Analytics Dashboard (`teacher.html`)
+  - [x] 5.1 `teacher.html` ga Chart.js CDN ni qo'shing va `calculateClassStats(students, portfolios)` funksiyasini implement qiling
+    - Qaytaradi: `{ totalCount, avgGPA, avgCompletion }`
+    - Stats cards: jami studentlar, o'rtacha GPA, o'rtacha to'liqlik
+    - _Requirements: 1.1_
+  - [ ]* 5.2 Class statistics correctness uchun property test yozing
+    - **Property 1: Class Statistics Correctness**
+    - **Validates: Requirements 1.1**
+    - `fc.assert(fc.property(fc.array(fc.record({gpa: fc.float({min:1,max:5}), score: fc.integer({min:0,max:100})}), {minLength:1}), arr => { const s = calculateClassStats(arr); return s.totalCount === arr.length && Math.abs(s.avgGPA - mean(arr.map(x=>x.gpa))) < 0.001 }), { numRuns: 100 })`
+  - [x] 5.3 `bucketGPAs(portfolios)` funksiyasini implement qiling
+    - Bucketlar: `low` (1.0–2.9), `mid` (3.0–3.9), `good` (4.0–4.4), `excellent` (4.5–5.0)
+    - _Requirements: 1.2_
+  - [ ]* 5.4 GPA bucketing completeness uchun property test yozing
+    - **Property 2: GPA Bucketing Completeness**
+    - **Validates: Requirements 1.2**
+    - Barcha bucket summalari jami student soniga teng bo'lishi kerak
+  - [x] 5.5 `classifyCompletion(portfolios)` funksiyasini implement qiling
+    - Qaytaradi: `{ above70, below70 }`, `above70 + below70 === totalStudents`
+    - _Requirements: 1.3_
+  - [ ]* 5.6 Completion classification completeness uchun property test yozing
+    - **Property 3: Completion Classification Completeness**
+    - **Validates: Requirements 1.3**
+  - [x] 5.7 `getTop5Students(students, portfolios)` funksiyasini implement qiling
+    - Portfolio_Score bo'yicha kamayish tartibida, maksimal 5 ta
+    - _Requirements: 1.4_
+  - [ ]* 5.8 Top-5 ordering uchun property test yozing
+    - **Property 4: Top-5 Ordering and Membership**
+    - **Validates: Requirements 1.4**
+    - Natija ≤ 5 ta, kamayish tartibida, asl massivdan
+  - [x] 5.9 `renderGPAChart(students, portfolios)` va `renderCompletionChart(students, portfolios)` funksiyalarini implement qiling
+    - Chart.js `Bar` va `Doughnut` chart turlari
+    - Student yo'q bo'lsa placeholder xabar ko'rsatiladi
+    - _Requirements: 1.2, 1.3, 1.6_
+  - [x] 5.10 Top 5 Students ro'yxatini teacher.html da render qiling
+    - Har bir student uchun: ism, GPA, Portfolio_Score
+    - _Requirements: 1.4_
+
+- [x] 6. Search & Filter (`teacher.html`)
+  - [x] 6.1 `filterStudents(students, portfolios, query, gpaRange, scoreRange, sortBy)` funksiyasini implement qiling
+    - Real-time qidiruv: ism yoki ID bo'yicha case-insensitive
+    - GPA range filter, score range filter, sort options
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ]* 6.2 Search filter correctness uchun property test yozing
+    - **Property 12: Search Filter Correctness**
+    - **Validates: Requirements 6.1**
+    - Natijada faqat query ga mos studentlar bo'lishi kerak
+  - [ ]* 6.3 GPA range filter correctness uchun property test yozing
+    - **Property 13: GPA Range Filter Correctness**
+    - **Validates: Requirements 6.2**
+  - [ ]* 6.4 Portfolio score filter correctness uchun property test yozing
+    - **Property 14: Portfolio Score Filter Correctness**
+    - **Validates: Requirements 6.3**
+  - [ ]* 6.5 Sort ordering invariant uchun property test yozing
+    - **Property 15: Sort Ordering Invariant**
+    - **Validates: Requirements 6.4**
+  - [x] 6.6 `teacher.html` ga search input, GPA range dropdown, score range dropdown va sort dropdown UI elementlarini qo'shing
+    - Input event da `filterStudents` chaqiriladi va student kartalar qayta render qilinadi
+    - Natija topilmasa "Natija topilmadi" xabari ko'rsatiladi
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
+
+- [ ] 7. Checkpoint — Analytics va Search to'g'ri ishlashini tekshiring
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 8. Bulk Import CSV (`teacher.html`)
+  - [x] 8.1 `importStudents(rows, existingUsers)` funksiyasini implement qiling
+    - Har bir valid qator uchun student yaratadi, mavjud ID larni o'tkazib yuboradi
+    - Qaytaradi: `{ added, skipped }`
+    - _Requirements: 7.4, 7.5_
+  - [ ]* 8.2 CSV duplicate ID skipping uchun property test yozing
+    - **Property 18: CSV Duplicate ID Skipping**
+    - **Validates: Requirements 7.5**
+    - `added + skipped.length === validRows.length`
+  - [x] 8.3 `teacher.html` ga CSV import UI qo'shing
+    - Fayl picker (faqat `.csv`), preview table, "Tasdiqlash" va "Bekor qilish" tugmalari
+    - Maksimal 200 qator tekshiruvi
+    - _Requirements: 7.1, 7.2, 7.3, 7.8_
+  - [x] 8.4 CSV import natijasini ko'rsating
+    - "X ta student qo'shildi, Y ta o'tkazib yuborildi" xabari
+    - Noto'g'ri header bo'lsa "CSV fayl noto'g'ri formatda" xatosi
+    - _Requirements: 7.6, 7.7_
+
+- [x] 9. Notification System (`teacher.html` va `student.html`)
+  - [x] 9.1 `getTeacherNotifications(students, portfolios)` funksiyasini implement qiling
+    - Portfolio_Score < 50 bo'lgan studentlar uchun notification
+    - Qaytaradi: `{ count, items: [{ id, name, score }] }`
+    - _Requirements: 8.1, 8.2_
+  - [ ]* 9.2 Notification badge count uchun property test yozing
+    - **Property 19: Notification Badge Count**
+    - **Validates: Requirements 8.1**
+    - `count === students.filter(s => portfolios[s.id]?.score < 50).length`
+  - [x] 9.3 `teacher.html` ga notification badge va dropdown UI qo'shing
+    - Badge: score < 50 bo'lgan studentlar soni
+    - Dropdown: har bir notification uchun ism va score
+    - Notification item bosilganda `portfolio-editor.html?id={studentId}` ga o'tadi
+    - Dismissed notifications `ep_dismissed_notifications` da saqlanadi
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.7_
+  - [x] 9.4 `student.html` ga inline banner notification qo'shing
+    - Score < 70 bo'lsa: "Portfolioingiz {score}% to'ldirilgan. To'liq to'ldirish uchun tahrirlang."
+    - Score === 100 bo'lsa: "Tabriklaymiz! Portfolioingiz to'liq to'ldirildi."
+    - _Requirements: 8.5, 8.6_
+  - [ ]* 9.5 Student banner condition uchun property test yozing
+    - **Property 20: Student Banner Condition**
+    - **Validates: Requirements 8.5**
+    - Score < 70 bo'lsa banner ko'rinadi, score >= 70 bo'lsa ko'rinmaydi
+
+- [x] 10. Portfolio Versioning (`portfolio-editor.html`)
+  - [x] 10.1 `saveVersion(studentId, portfolioData)` funksiyasini implement qiling
+    - `portfolio_versions_{studentId}` kaliti ostida saqlaydi
+    - Maksimal 10 versiya, yangi versiya boshiga qo'shiladi
+    - QuotaExceededError bo'lsa eng eski versiyani o'chirib qayta urinadi
+    - `generateSummary(data)` yordamida o'zgarish xulasasi yaratadi
+    - _Requirements: 9.1, 9.2, 9.3, 9.7_
+  - [ ]* 10.2 Version history max-10 invariant uchun property test yozing
+    - **Property 22: Version History Max-10 Invariant**
+    - **Validates: Requirements 9.3**
+    - N marta saqlangandan keyin versiyalar soni hech qachon 10 dan oshmaydi
+  - [ ]* 10.3 Version snapshot data fidelity uchun property test yozing
+    - **Property 23: Version Snapshot Data Fidelity**
+    - **Validates: Requirements 9.1**
+    - Saqlangan snapshot.data asl portfolio data ga teng bo'lishi kerak
+  - [x] 10.4 `getVersions(studentId)` va `restoreVersion(studentId, versionIndex)` funksiyalarini implement qiling
+    - Versiyalar ro'yxatini qaytaradi
+    - Tiklash oldidan confirm modal ko'rsatadi
+    - _Requirements: 9.4, 9.5, 9.6_
+  - [x] 10.5 `portfolio-editor.html` ga versioning UI qo'shing
+    - Versiyalar paneli: versiya raqami, timestamp (DD.MM.YYYY HH:mm), o'zgarish xulasasi
+    - "Tiklash" tugmasi va versiya hisoblagichi (masalan "3/10 versiya")
+    - `savePortfolio()` funksiyasini `saveVersion()` ni chaqiradigan qilib yangilang
+    - _Requirements: 9.4, 9.5, 9.6, 9.8_
+
+- [ ] 11. Checkpoint — Versioning to'g'ri ishlashini tekshiring
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 12. Student Profile Upgrade (`portfolio-editor.html` va `student.html`)
+  - [x] 12.1 `handlePhotoUpload(file)` funksiyasini implement qiling
+    - JPEG, PNG, WebP qabul qiladi, maksimal 2 MB
+    - FileReader bilan base64 ga aylantiradi, `photoBase64` da saqlaydi
+    - 2 MB dan katta bo'lsa "Rasm hajmi 2 MB dan oshmasligi kerak" xatosi
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 12.2 `addSkill(name, level)`, `removeSkill(index)`, `renderSkills(skills)` funksiyalarini implement qiling
+    - Skill: `{ name, level }` (level: 1–100)
+    - Progress bar sifatida render qilinadi
+    - _Requirements: 2.4, 2.5_
+  - [x] 12.3 `addGoal(title, targetDate)`, `toggleGoalStatus(index)`, `renderGoals(goals)` funksiyalarini implement qiling
+    - Goal: `{ title, targetDate, status: 'Bajarilmagan' | 'Bajarilgan' }`
+    - Bajarilgan goallar vizual farqlanadi
+    - _Requirements: 2.6, 2.7, 2.8_
+  - [ ]* 12.4 Skills va goals persistence round-trip uchun property test yozing
+    - **Property 6: Skills and Goals Persistence Round-Trip**
+    - **Validates: Requirements 2.5, 2.8**
+    - localStorage ga saqlash va o'qish asl massivga teng bo'lishi kerak
+  - [x] 12.5 `portfolio-editor.html` ga foto upload, skills va goals UI elementlarini qo'shing
+    - Foto: preview bilan file input
+    - Skills: ism + level input, progress bar render
+    - Goals: sarlavha + sana input, status toggle tugmasi
+    - _Requirements: 2.1, 2.4, 2.6_
+  - [x] 12.6 `selectTemplate(templateId)` va `applyTemplate(templateId)` funksiyalarini implement qiling
+    - 3 ta template: `classic`, `modern`, `minimal`
+    - `selectedTemplate` localStorage da saqlanadi
+    - _Requirements: 2.10, 2.11_
+  - [ ]* 12.7 Template ID persistence uchun property test yozing
+    - **Property 7: Template ID Persistence**
+    - **Validates: Requirements 2.11**
+    - `fc.assert(fc.property(fc.constantFrom('classic','modern','minimal'), id => { safeSetItem('selectedTemplate', id); return safeGetItem('selectedTemplate', null) === id }), { numRuns: 100 })`
+  - [x] 12.8 `portfolio-editor.html` ga template tanlash UI qo'shing
+    - 3 ta template kartasi, tanlangan template highlight qilinadi
+    - _Requirements: 2.10_
+  - [x] 12.9 `student.html` da foto, skills progress bar, goals va template ni ko'rsating
+    - `photoBase64` dan `<img>` render
+    - Skills: labeled progress bar
+    - Goals: status badge bilan ro'yxat
+    - `selectedTemplate` asosida layout o'zgaradi
+    - _Requirements: 2.9, 2.11_
+  - [ ]* 12.10 Portfolio data round-trip uchun property test yozing
+    - **Property 5: Portfolio Data Round-Trip (localStorage)**
+    - **Validates: Requirements 2.5, 2.8, 10.5**
+    - `JSON.parse(JSON.stringify(data))` asl data ga teng bo'lishi kerak
+
+- [x] 13. Public Portfolio & Share (`public.html`)
+  - [x] 13.1 `public.html` faylini yarating — read-only portfolio view
+    - URL dan `?id={studentId}` ni o'qiydi
+    - localStorage dan portfolio ma'lumotlarini yuklaydi
+    - Autentifikatsiya talab qilinmaydi
+    - _Requirements: 3.1, 3.4_
+  - [x] 13.2 `getStudentIdFromURL()` va `generateShareLink(studentId)` funksiyalarini implement qiling
+    - `generateShareLink`: `window.location.origin + '/public.html?id=' + studentId`
+    - _Requirements: 3.1_
+  - [ ]* 13.3 Share link contains student ID uchun property test yozing
+    - **Property 8: Share Link Contains Student ID**
+    - **Validates: Requirements 3.1**
+    - `fc.assert(fc.property(fc.string({minLength:1}), id => generateShareLink(id).endsWith('public.html?id=' + id)), { numRuns: 100 })`
+  - [x] 13.4 `copyToClipboard(text)` funksiyasini implement qiling
+    - `navigator.clipboard.writeText()` ishlatadi
+    - Muvaffaqiyatli bo'lsa "Havola nusxalandi!" xabari 3 soniya ko'rsatiladi
+    - _Requirements: 3.2, 3.3, 3.7_
+  - [x] 13.5 `renderQRCode(url, containerId, size)` funksiyasini implement qiling
+    - QRCode.js CDN ishlatadi, minimal 150×150 piksel
+    - _Requirements: 3.6_
+  - [x] 13.6 `public.html` da barcha portfolio bo'limlarini read-only render qiling
+    - Foto, shaxsiy ma'lumotlar, skills, sertifikatlar, baholar, yutuqlar, faoliyatlar, shaxsiy bayonot, goallar
+    - Student topilmasa "Portfolio topilmadi" xabari
+    - _Requirements: 3.4, 3.5, 3.8_
+  - [x] 13.7 `teacher.html` va `student.html` ga "Ulashish" tugmasini qo'shing
+    - Tugma bosilganda `copyToClipboard(generateShareLink(studentId))` chaqiriladi
+    - _Requirements: 3.2, 3.3_
+
+- [ ] 14. Checkpoint — Public portfolio va share to'g'ri ishlashini tekshiring
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 15. UI/UX Upgrade (barcha sahifalar)
+  - [x] 15.1 `teacher.html` ga collapsible sidebar qo'shing
+    - Havolalar: Student List, Analytics Dashboard, Bulk Import, Settings
+    - 768px dan kichik ekranda avtomatik yopiladi, hamburger icon ko'rinadi
+    - _Requirements: 4.4, 4.6_
+  - [x] 15.2 `student.html` ga collapsible sidebar qo'shing
+    - Havolalar: Portfolio View, Edit Portfolio, Share, Settings
+    - _Requirements: 4.5, 4.6_
+  - [x] 15.3 Barcha sahifalarga dark mode toggle tugmasini qo'shing
+    - `shared.js` dagi `initDarkMode()` va `toggleDarkMode()` ishlatiladi
+    - Sahifa yuklanganda `ep_dark_mode` dan holat o'qiladi
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [x] 15.4 Dashboard kartalar va chart containerlar uchun entrance animatsiyalarini qo'shing
+    - CSS `@keyframes` yoki Tailwind `animate-` classlari
+    - Davomiyligi 500ms dan oshmasin
+    - _Requirements: 4.7_
+  - [x] 15.5 Barcha sahifalarda tugmalar uchun hover va active state feedback qo'shing
+    - CSS transition 150ms ichida
+    - _Requirements: 4.9_
+  - [x] 15.6 `teacher.html` Settings bo'limiga parol va PIN o'zgartirish formalarini qo'shing
+    - `changePassword()` va `changePIN()` funksiyalarini chaqiradi
+    - Muvaffaqiyat/xato xabarlarini ko'rsatadi
+    - _Requirements: 5.5, 5.6, 5.7, 5.8_
+
+- [ ] 16. Data Integrity — `savePortfolio()` ni yangilash
+  - [ ] 16.1 `portfolio-editor.html` dagi `savePortfolio()` funksiyasini yangilang
+    - `safeSetItem` ishlatsin
+    - Saqlashdan oldin `JSON.parse(JSON.stringify(data))` round-trip tekshiruvi
+    - `fullName` va `major` uchun default placeholder qiymatlar
+    - _Requirements: 10.4, 10.5_
+  - [ ] 16.2 Barcha sahifalarda `localStorage.getItem/setItem` ni `safeGetItem/safeSetItem` bilan almashtiring
+    - `teacher.html`, `student.html`, `auth.html`, `portfolio-editor.html`
+    - _Requirements: 10.4_
+
+- [ ] 17. Final Checkpoint — Barcha testlar va integratsiya
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- `*` bilan belgilangan sub-tasklar ixtiyoriy (optional) — tezroq MVP uchun o'tkazib yuborish mumkin
+- Har bir task tegishli requirements ga havola qiladi
+- `shared.js` birinchi implement qilinishi kerak — boshqa barcha fayllar unga bog'liq
+- Property testlar uchun fast-check CDN: `https://cdn.jsdelivr.net/npm/fast-check/lib/bundle/fast-check.min.js`
+- Barcha property testlar kamida 100 iteratsiya bilan ishga tushiriladi
+- Checkpointlar inkremental validatsiyani ta'minlaydi
