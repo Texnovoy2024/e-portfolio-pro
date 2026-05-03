@@ -410,8 +410,7 @@ async function downloadJPG(){
  showToast('Professional resume tayyorlanmoqda...');
  
  var studentId = getStudentIdFromURL();
- var portfolios = safeGetItem('portfolios', {});
- var data = portfolios[studentId];
+ var data = await fbGet('portfolios/' + studentId);
  
  if (!data) {
    showToast('Ma\'lumotlar topilmadi!');
@@ -624,19 +623,18 @@ document.addEventListener('DOMContentLoaded', function(){
  var studentId = getStudentIdFromURL();
  console.log('Public.html loaded with ID:', studentId);
  if(!studentId){
- console.log('No student ID found in URL');
  document.getElementById('notFound').classList.remove('hidden');
  return;
  }
- var portfolios = safeGetItem('portfolios', {});
- console.log('Portfolios from localStorage:', portfolios);
- var data = portfolios[studentId];
- console.log('Student data:', data);
+
+ // Firebase dan portfolio yuklash
+ fbGet('portfolios/' + studentId).then(function(data) {
  if(!data){
  document.getElementById('notFound').classList.remove('hidden');
  return;
  }
  renderPortfolio(data, studentId);
+ });
 });
 </script>
 </body>

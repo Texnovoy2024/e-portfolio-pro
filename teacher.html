@@ -405,8 +405,18 @@
 // ============================================================
 function renderTeacherProfile() {
     var userId = localStorage.getItem('ep_user_id') || '—';
-    var users = safeGetItem('users', {});
-    var portfolios = safeGetItem('portfolios', {});
+    // Avatar initials
+    var initials = userId.substring(0, 2).toUpperCase();
+    var avatarEl = document.getElementById('teacherAvatar');
+    if (avatarEl) avatarEl.textContent = initials;
+    var nameEl = document.getElementById('teacherName');
+    if (nameEl) nameEl.textContent = userId;
+    var idEl = document.getElementById('teacherIdDisplay');
+    if (idEl) idEl.querySelector('span').textContent = userId;
+
+    Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+    var users = results[0] || {};
+    var portfolios = results[1] || {};
     var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
 
     // Avatar initials
@@ -481,6 +491,7 @@ function renderTeacherProfile() {
             }).join('');
         }
     }
+    }); // end Promise.all
 }
 
 // ============================================================
@@ -811,10 +822,12 @@ function toggleNotifDropdown() {
 
 function dismissNotif(id) {
  dismissNotification(id);
- var users = safeGetItem('users', {});
- var portfolios = safeGetItem('portfolios', {});
+ Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+ var users = results[0] || {};
+ var portfolios = results[1] || {};
  var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
  renderNotifications(studentIds, portfolios);
+ });
 }
 
 function goToStudent(id) {
@@ -872,12 +885,14 @@ function showSection(id) {
 
     // If analytics section, render charts
     if (id === 'analyticsSection') {
-        var users = safeGetItem('users', {});
-        var portfolios = safeGetItem('portfolios', {});
+        Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+        var users = results[0] || {};
+        var portfolios = results[1] || {};
         var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
         renderGPAChart(studentIds, portfolios);
         renderCompletionChart(studentIds, portfolios);
         renderTop5(studentIds, portfolios);
+        });
     }
 
     // If settings section, render teacher profile
@@ -975,8 +990,9 @@ function renderStudentCards(studentIds, portfolios) {
 // FILTER & SEARCH HANDLER
 // ============================================================
 function applyFilters() {
- var users = safeGetItem('users', {});
- var portfolios = safeGetItem('portfolios', {});
+ Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+ var users = results[0] || {};
+ var portfolios = results[1] || {};
  var allStudentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
 
  var query = (document.getElementById('searchInput') || {}).value || '';
@@ -998,9 +1014,8 @@ function applyFilters() {
 
  var filtered = filterStudents(allStudentIds, portfolios, query, gpaRange, scoreRange, sortVal || null);
  renderStudentCards(filtered, portfolios);
-
- // Update stats with all students (not filtered)
  updateStats(allStudentIds, portfolios);
+ });
 }
 
 // ============================================================
@@ -1029,14 +1044,13 @@ async function createStudent() {
  studentId = studentId.trim();
  if (!studentId) return;
 
- var users = safeGetItem('users', {});
- if (users[studentId]) {
+ var existingUser = await fbGet('users/' + studentId);
+ if (existingUser) {
  await showAlert("Bu ID allaqachon mavjud!", "Xatolik");
  return;
  }
 
- users[studentId] = { role: 'student', password: null };
- safeSetItem('users', users);
+ await fbSet('users/' + studentId, { role: 'student', password: null });
  window.location.href = 'portfolio-editor.html?id=' + encodeURIComponent(studentId);
 }
 
@@ -1044,12 +1058,10 @@ async function deleteStudent(id) {
  var ok = await showConfirm("\"" + id + "\" studentini o'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo'lmaydi.", "O'chirishni tasdiqlash");
  if (!ok) return;
 
- var users = safeGetItem('users', {});
- var portfolios = safeGetItem('portfolios', {});
- delete users[id];
- delete portfolios[id];
- safeSetItem('users', users);
- safeSetItem('portfolios', portfolios);
+ await Promise.all([
+ fbRemove('users/' + id),
+ fbRemove('portfolios/' + id)
+ ]);
  applyFilters();
 }
 
@@ -1118,18 +1130,21 @@ function renderCSVPreview(headers, rows, malformedRows) {
 function confirmCSVImport() {
  if (!csvParsedRows.length) return;
 
- var users = safeGetItem('users', {});
- var portfolios = safeGetItem('portfolios', {});
+ Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+ var users = results[0] || {};
+ var portfolios = results[1] || {};
  var added = 0;
  var skipped = [];
+ var userUpdates = {};
+ var portfolioUpdates = {};
 
  csvParsedRows.forEach(function(row) {
  var id = (row.id || '').trim();
  if (!id) { skipped.push('(bo\'sh ID)'); return; }
  if (users[id]) { skipped.push(id); return; }
 
- users[id] = { role: 'student', password: null };
- portfolios[id] = {
+ userUpdates[id] = { role: 'student', password: null };
+ portfolioUpdates[id] = {
  fullName: row.fullName || '',
  major: row.major || '',
  school: row.school || '',
@@ -1140,15 +1155,21 @@ function confirmCSVImport() {
  added++;
  });
 
- safeSetItem('users', users);
- safeSetItem('portfolios', portfolios);
+ // Firebase ga batch yozish
+ var promises = [];
+ Object.keys(userUpdates).forEach(function(id) {
+ promises.push(fbSet('users/' + id, userUpdates[id]));
+ promises.push(fbSet('portfolios/' + id, portfolioUpdates[id]));
+ });
 
+ Promise.all(promises).then(function() {
  var msg = added + " ta student qo'shildi";
  if (skipped.length > 0) msg += ", " + skipped.length + " ta o'tkazib yuborildi";
  showAlert(msg, "Import natijasi");
-
  cancelCSVImport();
  applyFilters();
+ });
+ });
 }
 
 function cancelCSVImport() {
@@ -1185,7 +1206,7 @@ function handleChangePassword() {
  return;
  }
 
- var result = changePassword(userId, cur, nw);
+ changePassword(userId, cur, nw).then(function(result) {
  if (msg) {
  msg.textContent = result.success ? "Parol muvaffaqiyatli o'zgartirildi" : (result.error || "Xatolik");
  msg.className = 'text-xs text-center ' + (result.success ? 'text-green-600' : 'text-red-500');
@@ -1196,6 +1217,7 @@ function handleChangePassword() {
  document.getElementById('newPass').value = '';
  document.getElementById('confirmPass').value = '';
  }
+ });
 }
 
 function handleChangePIN() {
@@ -1204,7 +1226,7 @@ function handleChangePIN() {
  var nw = (document.getElementById('newPIN') || {}).value || '';
  var msg = document.getElementById('pinMsg');
 
- var result = changePIN(userId, cur, nw);
+ changePIN(userId, cur, nw).then(function(result) {
  if (msg) {
  msg.textContent = result.success ? "PIN muvaffaqiyatli o'zgartirildi" : (result.error || "Xatolik");
  msg.className = 'text-xs text-center ' + (result.success ? 'text-green-600' : 'text-red-500');
@@ -1214,6 +1236,7 @@ function handleChangePIN() {
  document.getElementById('currentPIN').value = '';
  document.getElementById('newPIN').value = '';
  }
+ });
 }
 
 // ============================================================
@@ -1262,10 +1285,12 @@ document.addEventListener('DOMContentLoaded', function() {
  applyFilters();
 
  // Notifications
- var users = safeGetItem('users', {});
- var portfolios = safeGetItem('portfolios', {});
+ Promise.all([fbGet('users'), fbGet('portfolios')]).then(function(results) {
+ var users = results[0] || {};
+ var portfolios = results[1] || {};
  var studentIds = Object.keys(users).filter(function(k) { return users[k].role === 'student'; });
  renderNotifications(studentIds, portfolios);
+ });
 });
 </script>
 

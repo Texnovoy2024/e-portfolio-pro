@@ -755,11 +755,18 @@ document.addEventListener('DOMContentLoaded', function() {
  }
 });
 
-// ===== SAVE PORTFOLIO (Task 10.5) =====
+// ===== SAVE PORTFOLIO =====
 async function savePortfolio() {
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) { await showAlert("Student ID topilmadi!", "Xatolik"); return; }
-    const portfolios = safeGetItem('portfolios', {});
+
+    // Mavjud photoBase64 ni olish (agar yangi rasm yuklanmagan bo'lsa)
+    var existingPhoto = null;
+    if (!photoBase64) {
+        var existing = await fbGet('portfolios/' + id);
+        existingPhoto = existing ? existing.photoBase64 : null;
+    }
+
     const portfolioData = {
         fullName: document.getElementById('fullName').value || '',
         email: document.getElementById('email').value || '',
@@ -779,15 +786,14 @@ async function savePortfolio() {
         educations: getEducations(),
         personalStatement: document.getElementById('personalStatement').value || '',
         gpa: document.getElementById('gpaValue').textContent || '0.00',
-        photoBase64: photoBase64 || portfolios[id]?.photoBase64 || null,
+        photoBase64: photoBase64 || existingPhoto || null,
         skills: skillsData,
         languages: languagesData,
         goals: goalsData
     };
-    portfolios[id] = portfolioData;
-    safeSetItem('portfolios', portfolios);
+
+    await fbSet('portfolios/' + id, portfolioData);
     await showAlert("Portfolio muvaffaqiyatli saqlandi!", "Muvaffaqiyat");
-    // Role ga qarab to'g'ri sahifaga qaytish
     const role = localStorage.getItem('ep_user_role');
     if (role === 'teacher') {
         window.location.href = 'teacher.html';
@@ -835,8 +841,9 @@ document.addEventListener('DOMContentLoaded', function() {
  if (hdr) hdr.textContent = 'ID: ' + id;
  const sidebarId = document.getElementById('sidebarStudentId');
  if (sidebarId) sidebarId.textContent = 'ID: ' + id;
- const portfolios = safeGetItem('portfolios', {});
- const data = portfolios[id];
+
+ // Firebase dan portfolio yuklash
+ fbGet('portfolios/' + id).then(function(data) {
  if (data) {
  document.getElementById('fullName').value = data.fullName || '';
  document.getElementById('email').value = data.email || '';
@@ -864,8 +871,8 @@ document.addEventListener('DOMContentLoaded', function() {
  }
  }
  calculateGPA();
+ });
  }
- 
 });
 </script>
 </div><!-- end p-4 -->

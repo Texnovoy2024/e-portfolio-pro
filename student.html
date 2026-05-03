@@ -239,8 +239,8 @@ function goToPublicView() {
 function renderStudentProfile() {
   var id = currentId || localStorage.getItem('ep_user_id');
   if (!id) return;
-  var portfolios = safeGetItem('portfolios', {});
-  var data = portfolios[id] || {};
+  fbGet('portfolios/' + id).then(function(data) {
+  data = data || {};
   var score = calculateScore(data);
 
   // Avatar initials
@@ -308,6 +308,7 @@ function renderStudentProfile() {
       }).join('');
     }
   }
+  }); // end fbGet
 }
 
 function calculateScore(data){
@@ -546,11 +547,12 @@ function handleChangePass(){
  var cur=document.getElementById('curPass').value;
  var nw=document.getElementById('newPass').value;
  var msg=document.getElementById('passMsg');
- var res=changePassword(currentId,cur,nw);
+ changePassword(currentId,cur,nw).then(function(res){
  msg.textContent=res.success?"Parol muvaffaqiyatli o'zgartirildi":(res.error||"Xatolik");
  msg.className='text-xs text-center '+(res.success?'text-green-600':'text-red-500');
  msg.classList.remove('hidden');
  if(res.success){document.getElementById('curPass').value='';document.getElementById('newPass').value='';}
+ });
 }
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -562,10 +564,13 @@ document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('sidebarUserId').textContent=id;
  var editLink=document.getElementById('nav-edit');
  if(editLink)editLink.href='portfolio-editor.html?id='+encodeURIComponent(id);
- var portfolios=safeGetItem('portfolios',{});
- var data=portfolios[id];
+
+ // Firebase dan portfolio yuklash
+ fbGet('portfolios/'+id).then(function(data){
  if(data){renderPortfolio(data,id);}
  else{document.getElementById('portfolioContent').innerHTML='<div class="text-center py-16 text-gray-400"><i class="fas fa-folder-open text-5xl mb-4 block"></i><p class="text-lg">Portfolio hali to\'ldirilmagan</p><a href="portfolio-editor.html?id='+encodeURIComponent(id)+'" class="mt-4 inline-block bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition">Portfolioni to\'ldirish</a></div>';}
+ });
+
  document.getElementById('logoutBtn').addEventListener('click',async function(){var ok=await showConfirm("Haqiqatan ham chiqmoqchimisiz?");if(ok)logout();});
 });
 </script>

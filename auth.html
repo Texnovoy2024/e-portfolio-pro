@@ -138,32 +138,6 @@
     </div>
 
     <script>
-        // ============================================
-        // DEFAULT TEACHER YARATISH
-        // ============================================
-        function initializeDefaultTeacher() {
-            var users = JSON.parse(localStorage.getItem('users') || '{}');
-            
-            // Agar "umida" ID mavjud bo'lmasa, default teacher yaratamiz
-            if (!users['umida']) {
-                users['umida'] = {
-                    role: 'teacher',
-                    password: 'umida222',
-                    pin: null, // Birinchi login da PIN o'rnatadi
-                    name: 'Umida',
-                    createdAt: new Date().toISOString()
-                };
-                localStorage.setItem('users', JSON.stringify(users));
-                console.log('✅ Default teacher yaratildi: ID=umida, Parol=umida222');
-            }
-        }
-
-        // Sahifa yuklanganda default teacher yaratish
-        initializeDefaultTeacher();
-
-        // ============================================
-        // AUTH LOGIC
-        // ============================================
         var idInput = document.getElementById('userId');
         var passwordInput = document.getElementById('password');
         var errorMsg = document.getElementById('errorMsg');
@@ -181,8 +155,8 @@
         var pinSetupBtn = document.getElementById('pinSetupBtn');
         var backFromPinSetup = document.getElementById('backFromPinSetup');
 
-        // Joriy login konteksti
         var currentUserId = null;
+        var currentUserData = null;
 
         function showError(text) {
             errorMsg.textContent = text;
@@ -190,8 +164,11 @@
             setTimeout(function () { errorMsg.classList.add('hidden'); }, 4000);
         }
 
-        function hideError() {
-            errorMsg.classList.add('hidden');
+        function hideError() { errorMsg.classList.add('hidden'); }
+
+        function setLoading(btn, loading) {
+            btn.disabled = loading;
+            btn.style.opacity = loading ? '0.6' : '1';
         }
 
         function showStep(step) {
@@ -202,92 +179,137 @@
             step.classList.remove('hidden');
         }
 
-        function completeLogin(userId, users) {
+        function completeLogin(userId, userData) {
             localStorage.setItem('ep_logged_in', 'true');
             localStorage.setItem('ep_user_id', userId);
-            localStorage.setItem('ep_user_role', users[userId].role);
-            // 4.5: session start saqlash
+            localStorage.setItem('ep_user_role', userData.role);
             localStorage.setItem('ep_session_start', new Date().toISOString());
 
-            if (users[userId].role === 'teacher') {
+            if (userData.role === 'teacher') {
                 window.location.href = 'teacher.html';
             } else {
                 window.location.href = 'student.html';
             }
         }
 
-        // Step 1: Login tugmasi
+        // ============================================
+        // DEFAULT TEACHER — Firebase da yaratish
+        // ============================================
+        function ensureDefaultTeacher() {
+            onFirebaseReady(function() {
+                fbGet('users/umida').then(function(user) {
+                    if (!user) {
+                        fbSet('users/umida', {
+                            role: 'teacher',
+                            password: 'umida222',
+                            pin: null,
+                            name: 'Umida',
+                            createdAt: new Date().toISOString()
+                        }).then(function() {
+                            console.log('✅ Default teacher Firebase da yaratildi: ID=umida, Parol=umida222');
+                        });
+                    }
+                });
+            });
+        }
+
+        // Firebase tayyor bo'lganda default teacher yaratish
+        onFirebaseReady(function() {
+            ensureDefaultTeacher();
+        });
+
+        // ============================================
+        // LOGIN — Firebase dan tekshirish
+        // ============================================
         loginBtn.addEventListener('click', function () {
             var id = idInput.value.trim();
             var pass = passwordInput.value.trim();
+            var role = document.querySelector('input[name="role"]:checked').value;
 
             if (!id || !pass) {
                 showError("ID va parolni to'ldiring");
                 return;
             }
 
-            var users = JSON.parse(localStorage.getItem('users') || '{}');
+            setLoading(loginBtn, true);
+            loginBtn.textContent = 'Tekshirilmoqda...';
 
-            if (!users[id]) {
-                showError("Bunday ID mavjud emas!");
-                return;
-            }
+            fbGet('users/' + id).then(function(userData) {
+                setLoading(loginBtn, false);
+                loginBtn.textContent = 'Tizimga kirish';
 
-            // Parol tekshiruvi
-            if (users[id].password === null) {
-                // Birinchi login — parol o'rnatish
-                users[id].password = pass;
-                localStorage.setItem('users', JSON.stringify(users));
-            } else if (users[id].password !== pass) {
-                showError("Parol noto'g'ri!");
-                return;
-            }
+                if (!userData) {
+                    showError("Bunday ID mavjud emas!");
+                    return;
+                }
 
-            currentUserId = id;
+                // Rol tekshiruvi
+                if (userData.role !== role) {
+                    showError("Rol noto'g'ri! Siz " + (userData.role === 'teacher' ? "o'qituvchi" : "o'quvchi") + " sifatida kirishingiz kerak.");
+                    return;
+                }
 
+                // Parol tekshiruvi
+                if (userData.password === null || userData.password === undefined) {
+                    // Birinchi login — parolni o'rnatish
+                    fbSet('users/' + id + '/password', pass).then(function() {
+                        currentUserId = id;
+                        currentUserData = userData;
+                        currentUserData.password = pass;
+                        proceedAfterPassword(id, currentUserData);
+                    });
+                    return;
+                }
+
+                if (userData.password !== pass) {
+                    showError("Parol noto'g'ri!");
+                    return;
+                }
+
+                currentUserId = id;
+                currentUserData = userData;
+                proceedAfterPassword(id, userData);
+            });
+        });
+
+        function proceedAfterPassword(id, userData) {
             // Student: to'g'ridan-to'g'ri kirish
-            if (users[id].role === 'student') {
-                completeLogin(id, users);
+            if (userData.role === 'student') {
+                completeLogin(id, userData);
                 return;
             }
 
             // Teacher: PIN tekshiruvi
-            if (users[id].role === 'teacher') {
-                if (users[id].pin) {
-                    // 4.4: Mavjud PIN — PIN kiritish formasi
-                    showStep(stepPinVerify);
-                    pinInput.value = '';
-                    pinInput.focus();
-                } else {
-                    // 4.3: Yangi teacher — PIN o'rnatish formasi
-                    showStep(stepPinSetup);
-                    pinSetupInput.value = '';
-                    pinSetupInput.focus();
-                }
+            if (userData.pin) {
+                showStep(stepPinVerify);
+                pinInput.value = '';
+                pinInput.focus();
+            } else {
+                showStep(stepPinSetup);
+                pinSetupInput.value = '';
+                pinSetupInput.focus();
             }
-        });
+        }
 
         // Step 2a: PIN tekshiruvi
         pinVerifyBtn.addEventListener('click', function () {
             var pin = pinInput.value.trim();
-            var users = JSON.parse(localStorage.getItem('users') || '{}');
 
             if (!validatePIN(pin)) {
                 showError("PIN 4-6 ta raqamdan iborat bo'lishi kerak");
                 return;
             }
 
-            if (users[currentUserId].pin !== pin) {
+            if (currentUserData.pin !== pin) {
                 showError("PIN noto'g'ri!");
                 pinInput.value = '';
                 pinInput.focus();
                 return;
             }
 
-            completeLogin(currentUserId, users);
+            completeLogin(currentUserId, currentUserData);
         });
 
-        // Enter tugmasi bilan PIN tasdiqlash
         pinInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') pinVerifyBtn.click();
         });
@@ -295,20 +317,20 @@
         // Step 2b: PIN o'rnatish
         pinSetupBtn.addEventListener('click', function () {
             var pin = pinSetupInput.value.trim();
-            var users = JSON.parse(localStorage.getItem('users') || '{}');
 
             if (!validatePIN(pin)) {
                 showError("PIN faqat 4-6 ta raqamdan iborat bo'lishi kerak");
                 return;
             }
 
-            users[currentUserId].pin = pin;
-            localStorage.setItem('users', JSON.stringify(users));
-
-            completeLogin(currentUserId, users);
+            setLoading(pinSetupBtn, true);
+            fbSet('users/' + currentUserId + '/pin', pin).then(function() {
+                setLoading(pinSetupBtn, false);
+                currentUserData.pin = pin;
+                completeLogin(currentUserId, currentUserData);
+            });
         });
 
-        // Enter tugmasi bilan PIN setup tasdiqlash
         pinSetupInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') pinSetupBtn.click();
         });
@@ -316,15 +338,16 @@
         // Orqaga tugmalari
         backFromPinVerify.addEventListener('click', function () {
             currentUserId = null;
+            currentUserData = null;
             showStep(stepLogin);
         });
 
         backFromPinSetup.addEventListener('click', function () {
             currentUserId = null;
+            currentUserData = null;
             showStep(stepLogin);
         });
 
-        // Enter bilan login
         passwordInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') loginBtn.click();
         });
