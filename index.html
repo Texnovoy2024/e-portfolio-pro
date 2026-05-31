@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="uz">
 
 <head>
@@ -125,6 +125,7 @@
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
         }
     </style>
+    <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 
 <body class="bg-gray-50 text-gray-800">
@@ -133,12 +134,18 @@
     <nav id="navbar" class="bg-white shadow-md fixed w-full z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <!-- Logo -->
-            <div class="flex items-center gap-2 flex-shrink-0 cursor-pointer select-none" onclick="scrollToTop()" title="Bosh sahifaga qaytish">
-                <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white hover:bg-blue-700 transition-all duration-200 hover:scale-105">
-                    <i class="fas fa-folder-open text-sm"></i>
+            <div class="flex items-center gap-2 flex-shrink-0 cursor-pointer select-none" onclick="scrollToTop()"
+                title="Bosh sahifaga qaytish">
+                <div
+                    class="w-9 h-9 bg-transparent flex items-center justify-center transition-all duration-200 hover:scale-105">
+                    <img src="assets/logo.png" alt="E-Portfolio Logo" class="w-full h-full object-cover"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <i class="fas fa-folder-open text-sm" style="display:none"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight leading-none hover:text-blue-600 transition-colors duration-200">E-Portfolio</h1>
+                    <h1
+                        class="font-bold text-lg tracking-tight leading-none hover:text-blue-600 transition-colors duration-200">
+                        E-Portfolio</h1>
                     <p class="text-xs text-gray-500">O'quvchilar uchun</p>
                 </div>
             </div>
@@ -172,11 +179,16 @@
 
         <!-- Mobile menu dropdown -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
-            <a href="#about" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Tizim haqida</a>
-            <a href="#create" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Yaratish</a>
-            <a href="#benefits" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Afzalliklar</a>
-            <a href="#demo" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">DEMO</a>
-            <a href="#contact" onclick="closeMobileMenu()" class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Bog'lanish</a>
+            <a href="#about" onclick="closeMobileMenu()"
+                class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Tizim haqida</a>
+            <a href="#create" onclick="closeMobileMenu()"
+                class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Yaratish</a>
+            <a href="#benefits" onclick="closeMobileMenu()"
+                class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Afzalliklar</a>
+            <a href="#demo" onclick="closeMobileMenu()"
+                class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">DEMO</a>
+            <a href="#contact" onclick="closeMobileMenu()"
+                class="block px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition">Bog'lanish</a>
         </div>
     </nav>
 
@@ -589,85 +601,83 @@
                 <i class="fab fa-instagram"></i>
                 <i class="fab fa-youtube"></i>
             </div>
-            <p class="text-sm">© 2026 Hasanxon uchun maxsus tayyorlangan veb-sayt namunasi.<br>
-                Barcha huquqlar himoyalangan. Kodni o‘zgartirib, o‘zingiz ishlatishingiz mumkin.</p>
+            <p class="text-sm">© 2026 E-Portfolio | O'quvchilar uchun elektron portfolio tizimi.<br>
+                Barcha huquqlar himoyalangan.</p>
         </div>
     </footer>
-<!-- ===== GLOBAL MODAL ===== -->
-<div id="globalModal"
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <!-- ===== GLOBAL MODAL ===== -->
+    <div id="globalModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
 
-    <div id="modalBox"
-        class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 scale-95 opacity-0 transition-all duration-200">
+        <div id="modalBox"
+            class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 scale-95 opacity-0 transition-all duration-200">
 
-        <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
+            <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800"></h3>
 
-        <div id="modalMessage" class="text-gray-600 mb-6"></div>
+            <div id="modalMessage" class="text-gray-600 mb-6"></div>
 
-        <div class="flex justify-end gap-3">
-            <button id="modalCancel"
-                class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 hidden">
-                Bekor qilish
-            </button>
+            <div class="flex justify-end gap-3">
+                <button id="modalCancel" class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 hidden">
+                    Bekor qilish
+                </button>
 
-            <button id="modalOk"
-                class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
-                OK
-            </button>
+                <button id="modalOk" class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                    OK
+                </button>
+            </div>
         </div>
     </div>
-</div>
     <script>
         // ================= MODAL SYSTEM =================
 
-function showAlert(message, title = "Ma'lumot") {
-    return new Promise(resolve => {
-        openModal(title, message, false, resolve)
-    })
-}
+        function showAlert(message, title = "Ma'lumot") {
+            return new Promise(resolve => {
+                openModal(title, message, false, resolve)
+            })
+        }
 
-function showConfirm(message, title = "Tasdiqlash") {
-    return new Promise(resolve => {
-        openModal(title, message, true, resolve)
-    })
-}
+        function showConfirm(message, title = "Tasdiqlash") {
+            return new Promise(resolve => {
+                openModal(title, message, true, resolve)
+            })
+        }
 
-function openModal(title, message, isConfirm, callback) {
+        function openModal(title, message, isConfirm, callback) {
 
-    const modal = document.getElementById("globalModal")
-    const box = document.getElementById("modalBox")
+            const modal = document.getElementById("globalModal")
+            const box = document.getElementById("modalBox")
 
-    document.getElementById("modalTitle").textContent = title
-    document.getElementById("modalMessage").innerHTML = message
+            document.getElementById("modalTitle").textContent = title
+            document.getElementById("modalMessage").innerHTML = message
 
-    const cancelBtn = document.getElementById("modalCancel")
-    cancelBtn.classList.toggle("hidden", !isConfirm)
+            const cancelBtn = document.getElementById("modalCancel")
+            cancelBtn.classList.toggle("hidden", !isConfirm)
 
-    modal.classList.remove("hidden")
+            modal.classList.remove("hidden")
 
-    setTimeout(() => {
-        box.classList.remove("scale-95", "opacity-0")
-        box.classList.add("scale-100", "opacity-100")
-    }, 10)
+            setTimeout(() => {
+                box.classList.remove("scale-95", "opacity-0")
+                box.classList.add("scale-100", "opacity-100")
+            }, 10)
 
-    document.getElementById("modalOk").onclick = () => {
-        closeModal()
-        callback(true)
-    }
+            document.getElementById("modalOk").onclick = () => {
+                closeModal()
+                callback(true)
+            }
 
-    cancelBtn.onclick = () => {
-        closeModal()
-        callback(false)
-    }
-}
+            cancelBtn.onclick = () => {
+                closeModal()
+                callback(false)
+            }
+        }
 
-function closeModal() {
-    const modal = document.getElementById("globalModal")
-    const box = document.getElementById("modalBox")
+        function closeModal() {
+            const modal = document.getElementById("globalModal")
+            const box = document.getElementById("modalBox")
 
-    box.classList.add("scale-95", "opacity-0")
-    setTimeout(() => modal.classList.add("hidden"), 200)
-}
+            box.classList.add("scale-95", "opacity-0")
+            setTimeout(() => modal.classList.add("hidden"), 200)
+        }
 
         // Logo bosilganda hero ga smooth scroll
         function scrollToTop() {
@@ -763,14 +773,14 @@ function closeModal() {
     </script>
     <script>
         async function handleSubmit(e) {
-    e.preventDefault()
+            e.preventDefault()
 
-    const name = document.getElementById("name").value
-    const phone = document.getElementById("phone").value
-    const email = document.getElementById("email").value
-    const message = document.getElementById("message").value
+            const name = document.getElementById("name").value
+            const phone = document.getElementById("phone").value
+            const email = document.getElementById("email").value
+            const message = document.getElementById("message").value
 
-    const text = `
+            const text = `
 📩 Yangi murojaat:
 
 👤 Ism: ${name}
@@ -779,25 +789,25 @@ function closeModal() {
 🏫 Maktab: ${message}
   `
 
-    const token = "8602519025:AAHUvDERWL2dzqQrXi-7rwsjfej8wix1LNk"
-    const chat_id = "5875765192"
+            const token = "8602519025:AAHUvDERWL2dzqQrXi-7rwsjfej8wix1LNk"
+            const chat_id = "5875765192"
 
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: chat_id,
-            text: text,
-        }),
-    })
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: chat_id,
+                    text: text,
+                }),
+            })
 
-    await showAlert(
-        "So'rovingiz qabul qilindi ✅ Administrator tez orada siz bilan bog'lanadi.",
-        "Muvaffaqiyat"
-    )
+            await showAlert(
+                "So'rovingiz qabul qilindi ✅ Administrator tez orada siz bilan bog'lanadi.",
+                "Muvaffaqiyat"
+            )
 
-    e.target.reset()
-}
+            e.target.reset()
+        }
     </script>
 </body>
 
