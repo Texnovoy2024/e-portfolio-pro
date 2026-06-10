@@ -10,6 +10,7 @@
 <style>
   #sidebar { transition: transform 0.3s ease; }
 </style>
+    <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -17,8 +18,9 @@
 <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 flex flex-col -translate-x-full md:translate-x-0">
   <div class="p-5 border-b border-gray-200">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
-        <i class="fas fa-folder-open text-white"></i>
+      <div class="w-10 h-10 bg-transparent flex items-center justify-center overflow-hidden">
+        <img src="assets/logo.png" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        <i class="fas fa-folder-open text-white" style="display:none"></i>
       </div>
       <div>
         <h2 class="font-bold text-sm text-gray-800">Portfolio Tahrirlash</h2>
