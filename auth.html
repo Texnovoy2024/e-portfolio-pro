@@ -140,6 +140,19 @@
     </div>
 
     <script>
+        function togglePass(id, btn) {
+            var input = document.getElementById(id);
+            if (!input) return;
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+            } else {
+                input.type = 'password';
+                if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+            }
+        }
+
         var idInput = document.getElementById('userId');
         var passwordInput = document.getElementById('password');
         var errorMsg = document.getElementById('errorMsg');
@@ -199,16 +212,26 @@
         // ============================================
         function ensureDefaultTeacher() {
             onFirebaseReady(function() {
-                fbGet('users/umida').then(function(user) {
+                // Eski umida accountini o'chirish (agar mavjud bo'lsa)
+                fbGet('users/umida').then(function(oldUser) {
+                    if (oldUser) {
+                        fbRemove('users/umida').then(function() {
+                            console.log('🗑️ Eski umida accounti o\'chirildi');
+                        });
+                    }
+                });
+
+                // Yangi hasanxon accountini yaratish
+                fbGet('users/hasanxon').then(function(user) {
                     if (!user) {
-                        fbSet('users/umida', {
+                        fbSet('users/hasanxon', {
                             role: 'teacher',
-                            password: 'umida222',
+                            password: 'kamina2004',
                             pin: null,
-                            name: 'Umida',
+                            name: 'Hasanxon',
                             createdAt: new Date().toISOString()
                         }).then(function() {
-                            console.log('✅ Default teacher Firebase da yaratildi: ID=umida, Parol=umida222');
+                            console.log('✅ Default teacher Firebase da yaratildi: ID=hasanxon, Parol=kamina2004');
                         });
                     }
                 });
